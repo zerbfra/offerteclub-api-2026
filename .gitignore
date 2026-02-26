@@ -1,0 +1,10 @@
+node_modules/
+.env
+dist/
+vendor/creatorsapi-nodejs-sdk/node_modules
+vendor/creatorsapi-nodejs-sdk/dist
+*.log
+.DS_Store
+
+.claude
+.cursor
