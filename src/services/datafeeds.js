@@ -2,10 +2,33 @@ const pg = require("../plugins/postgres")(process.env.POSTGRES_DATAFEEDS_URL);
 
 const ALLOWED_PARAM_KEY = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
+const PAYLOAD_FIELDS = [
+  "ean",
+  "brand_name",
+  "product_name",
+  "search_price",
+  "product_price_old",
+  "aw_deep_link",
+  "aw_product_id",
+  "aw_image_url",
+  "merchant_image_url",
+  "merchant_product_id",
+  "merchant_category",
+  "product_GTIN",
+];
+
+const formatRow = (row) => ({
+  id: row.id,
+  store: row.store,
+  ...Object.fromEntries(
+    PAYLOAD_FIELDS.map((key) => [key, row.payload?.[key] ?? null])
+  ),
+});
+
 const getDataFeedByEans = async (eanList, store) => {
   if (store !== "amazon") {
     const awinRes = await pg("awin").whereIn("ean", eanList);
-    return awinRes;
+    return awinRes.map(formatRow);
   }
 
   // TODO: gestire il feed amazon
@@ -27,7 +50,7 @@ const getDataFeedByParam = async (paramKey, paramValue, store) => {
       }
     });
 
-  return content;
+  return content.map(formatRow);
 };
 
 module.exports = {
