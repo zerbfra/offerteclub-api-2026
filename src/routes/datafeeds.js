@@ -1,13 +1,11 @@
-const {
-  getDataFeedByEans,
-  getDataFeedByParam,
-} = require("../services/datafeeds");
+const { getDataFeedByEans, getDataFeedByParam } = require("../services/datafeeds");
+const { parseProductIds } = require("../lib/utils");
 
 module.exports = async function (fastify) {
-  // GET /datafeeds/ean/:eanList — Recupera prodotti dai datafeed per uno o più EAN (separati da virgola).
-  fastify.get("/datafeeds/ean/:eanList", async (request) => {
-    const eanList = request.params.eanList.split(",");
-    const data = await getDataFeedByEans(eanList, request.query.store);
+  // GET /datafeeds/ean/:eans — Recupera prodotti dai datafeed per uno o più EAN (separati da virgola).
+  fastify.get("/datafeeds/ean/:eans", async (request) => {
+    const eans = parseProductIds(request.params.eans);
+    const data = await getDataFeedByEans(eans, request.query.store);
     return { status: 200, data };
   });
 

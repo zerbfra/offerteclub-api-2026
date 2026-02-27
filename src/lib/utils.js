@@ -6,15 +6,16 @@ function getAtPath(obj, path) {
 /** Ricava lo store dalla richiesta (header x-store/country-code o default). */
 function getStore(request, fastify) {
   return (
-    request.headers["x-store"] ||
-    request.headers["country-code"] ||
-    fastify.config.defaults.store
+    request.headers["x-store"] || request.headers["country-code"] || fastify.config.defaults.store
   );
 }
 
-/** Spezza la stringa di ASIN (separati da virgola) in array di codici. */
-function parseAsins(value) {
-  return value.split(",").map((s) => s.trim()).filter(Boolean);
+/** Spezza la stringa di EAN/ASIN/SKU (separati da virgola) in array di codici. */
+function parseProductIds(value) {
+  return value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /** Costruisce l’oggetto filtri di ricerca a partire dalla query string. */
@@ -29,4 +30,4 @@ function buildSearchFilter(query) {
   };
 }
 
-module.exports = { getAtPath, getStore, parseAsins, buildSearchFilter };
+module.exports = { getAtPath, getStore, parseProductIds, buildSearchFilter };
