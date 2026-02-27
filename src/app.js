@@ -30,6 +30,7 @@ async function build(opts = {}) {
 
   // REGISTER ROUTES
   await app.register(require("./routes/amazon"), { prefix: "/api" });
+  await app.register(require("./routes/datafeeds"), { prefix: "/api" });
 
   return app;
 }
