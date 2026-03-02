@@ -27,6 +27,7 @@ async function build(opts = {}) {
   // REGISTER PLUGINS
   await app.register(require("./plugins/redis"));
   await app.register(require("./plugins/amazon"));
+  await app.register(require("./plugins/postgres"));
 
   // REGISTER ROUTES
   await app.register(require("./routes/amazon"), { prefix: "/api" });

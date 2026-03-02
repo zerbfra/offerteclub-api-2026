@@ -45,4 +45,5 @@ Server in ascolto su `http://0.0.0.0:3000`.
 curl http://localhost:3000/health
 curl -H "x-store: it" "http://localhost:3000/api/amazon/lookup/B0DLFMFBJW,B0BFC7WQ6R"
 curl -H "x-store: it" "http://localhost:3000/api/amazon/search/cuffie"
+curl -H "x-store: IT" "http://127.0.0.1:3000/api/amazon/lookup/B093HM1JNP"
 ```

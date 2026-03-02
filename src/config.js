@@ -10,6 +10,11 @@ const config = {
       amazon: parseInt(process.env.REDIS_AMAZON_TTL_HOURS, 10) * 3600,
     },
   },
+  postgres: {
+    datafeeds: {
+      url: process.env.POSTGRES_DATAFEEDS_URL,
+    },
+  },
   amazon: {
     credentialId: process.env.AMAZON_CREDENTIAL_ID,
     credentialSecret: process.env.AMAZON_CREDENTIAL_SECRET,
@@ -48,6 +53,7 @@ configRequired(config, [
   "amazon.version",
   "amazon.stores.it.partnerTag",
   "defaults.store",
+  "postgres.datafeeds.url",
 ]);
 
 module.exports = config;

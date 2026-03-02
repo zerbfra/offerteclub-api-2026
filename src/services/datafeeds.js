@@ -1,5 +1,3 @@
-const pg = require("../plugins/postgres")(process.env.POSTGRES_DATAFEEDS_URL);
-
 const ALLOWED_PARAM_KEY = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
 const PAYLOAD_FIELDS = [
@@ -20,22 +18,21 @@ const PAYLOAD_FIELDS = [
 const formatRow = (row) => ({
   id: row.id,
   store: row.store,
-  ...Object.fromEntries(
-    PAYLOAD_FIELDS.map((key) => [key, row.payload?.[key] ?? null])
-  ),
+  ...Object.fromEntries(PAYLOAD_FIELDS.map((key) => [key, row.payload?.[key] ?? null])),
 });
 
-const getDataFeedByEans = async (eanList, store) => {
-  if (store !== "amazon") {
-    const awinRes = await pg("awin").whereIn("ean", eanList);
-    return awinRes.map(formatRow);
+const getDataFeedByEans = async (pg, eanList, store) => {
+  if (store === "amazon") {
+    const err = new Error("Amazon datafeed not implemented");
+    err.statusCode = 501;
+    throw err;
   }
 
-  // TODO: gestire il feed amazon
-  return [];
+  const awinRes = await pg("awin").whereIn("ean", eanList);
+  return awinRes.map(formatRow);
 };
 
-const getDataFeedByParam = async (paramKey, paramValue, store) => {
+const getDataFeedByParam = async (pg, paramKey, paramValue, store) => {
   if (!ALLOWED_PARAM_KEY.test(paramKey)) {
     const err = new Error(`Invalid param key: ${paramKey}`);
     err.statusCode = 400;
@@ -45,8 +42,8 @@ const getDataFeedByParam = async (paramKey, paramValue, store) => {
   const content = await pg("awin")
     .where({ store })
     .modify((queryBuilder) => {
-      if (paramValue && paramKey) {
-        queryBuilder.whereRaw(`payload->>'${paramKey}' = ?`, paramValue);
+      if (paramKey && paramValue) {
+        queryBuilder.whereRaw("payload->>? = ?", [paramKey, paramValue]);
       }
     });
 

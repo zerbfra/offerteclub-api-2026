@@ -26,7 +26,6 @@ function buildSearchFilter(query) {
     minPrice: query.minPrice,
     brand: query.brand,
     searchIndex: query.searchIndex,
-    deliveryFlags: ["FulfilledByAmazon"],
   };
 }
 
