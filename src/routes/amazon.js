@@ -3,9 +3,9 @@ const { getStore, parseProductIds, buildSearchFilter } = require("../lib/utils")
 
 module.exports = async function (fastify) {
   // GET /api/amazon/lookup/:asins — Recupera i dettagli dei prodotti per uno o più ASIN (separati da virgola).
-  fastify.get("/amazon/lookup/:asins", async (request) => {
+  fastify.get("/amazon/lookup/*", async (request) => {
     const store = getStore(request, fastify);
-    const asins = parseProductIds(request.params.asins);
+    const asins = parseProductIds(request.params["*"]);
     const data = await amazonService.lookupByAsins(
       fastify.redis,
       fastify.amazon,

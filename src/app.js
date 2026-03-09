@@ -8,10 +8,6 @@ async function build(opts = {}) {
 
   // REGISTER MIDDLEWARES
   await app.register(require("@fastify/cors"), { origin: true });
-  await app.register(require("@fastify/rate-limit"), {
-    max: 30,
-    timeWindow: "1 minute",
-  });
 
   // REGISTER ERROR HANDLER
   app.setErrorHandler((err, request, reply) => {
