@@ -7,6 +7,7 @@ const RESOURCES = [
   "images.primary.medium",
   "itemInfo.title",
   "itemInfo.features",
+  "itemInfo.externalIds",
   "offersV2.listings.price",
   "offersV2.listings.availability",
   "offersV2.listings.condition",
