@@ -21,13 +21,27 @@ const formatRow = (row) => ({
   ...Object.fromEntries(PAYLOAD_FIELDS.map((key) => [key, row.payload?.[key] ?? null])),
 });
 
-const getDataFeedByEans = async (pg, eanList, store) => {
-  if (store === "amazon") {
-    const err = new Error("Amazon datafeed not implemented");
-    err.statusCode = 501;
-    throw err;
-  }
+const formatAliexpressRow = (row) => {
+  const p = row.payload ?? {};
+  return {
+    id: row.id,
+    store: row.store,
+    ean: p.gtin || p.eanCode || null,
+    brand_name: p.Brand || null,
+    product_name: p.Titolo || null,
+    search_price: p["Prezzo Scontato con IVA"] || null,
+    product_price_old: p["Prezzo con IVA"] || null,
+    aw_deep_link: p.link || null,
+    aw_product_id: p.Prodotto || null,
+    aw_image_url: p[" Immagine link"] || null,
+    merchant_image_url: p.imageWhite || null,
+    merchant_product_id: p.skuId || null,
+    merchant_category: p["Categoria prodotto"] || null,
+    product_GTIN: p.gtin || null,
+  };
+};
 
+const getDataFeedByEans = async (pg, eanList) => {
   const awinRes = await pg("awin").whereIn("ean", eanList);
   return awinRes.map(formatRow);
 };
@@ -50,7 +64,13 @@ const getDataFeedByParam = async (pg, paramKey, paramValue, store) => {
   return content.map(formatRow);
 };
 
+const getAliexpressByEans = async (pg, eanList) => {
+  const rows = await pg("aliexpress").whereIn("ean", eanList);
+  return rows.map(formatAliexpressRow);
+};
+
 module.exports = {
   getDataFeedByEans,
   getDataFeedByParam,
+  getAliexpressByEans,
 };
