@@ -2,6 +2,11 @@ require("dotenv").config();
 
 const { getAtPath } = require("./lib/utils");
 
+const toInt = (value, fallback) => {
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) ? fallback : parsed;
+};
+
 const config = {
   port: parseInt(process.env.PORT, 10),
   redis: {
@@ -30,6 +35,21 @@ const config = {
     store: process.env.DEFAULT_STORE,
     lang: process.env.DEFAULT_LANG,
   },
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY,
+    timeout: toInt(process.env.OPENAI_TIMEOUT_MS, 30_000),
+  },
+  meili: {
+    host: process.env.MEILISEARCH_HOST,
+    apiKey: process.env.MEILISEARCH_API_KEY,
+    index: process.env.INDEX_NAME,
+    embedderName: process.env.EMBEDDER_NAME,
+    diversifyFetchLimit: toInt(process.env.MEILI_DIVERSIFY_FETCH_LIMIT, 25),
+    shopFilter: process.env.MEILI_SHOP_FILTER || "amazon",
+  },
+  chat: {
+    corsOrigin: process.env.CHAT_CORS_ORIGIN || "*",
+  },
 };
 
 function configRequired(config, requiredPaths) {
@@ -54,6 +74,10 @@ configRequired(config, [
   "amazon.stores.it.partnerTag",
   "defaults.store",
   "postgres.datafeeds.url",
+  "openai.apiKey",
+  "meili.host",
+  "meili.index",
+  "meili.embedderName",
 ]);
 
 module.exports = config;
