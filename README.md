@@ -44,7 +44,7 @@ Server in ascolto su `http://0.0.0.0:3000`.
 - **GET /api/datafeeds/:paramKey/:paramValue** — Ricerca nei datafeed per chiave/valore nel payload (`?store=...`).
 - **GET /api/telegram/stats/:channel** — Stats post Telegram per canale (passa il nome senza `@`). Query:
   - `limit` (default 100, max 1000) — ultimi N post.
-  - `date=YYYY-MM-DD` — filtra solo i post di quel giorno (sostituisce `limit`).
+  - `date=YYYY-MM-DD` — filtra i post DA quel giorno in poi (sostituisce `limit`).
   - `sortBy` — `date` (default), `views`, `forwards`, `reactions`. Tutti DESC.
 
 ## Test rapidi

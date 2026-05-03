@@ -11,7 +11,7 @@ const parseLimit = (value) => {
 
 module.exports = async function (fastify) {
   // GET /api/telegram/stats/:channel?limit=100|date=YYYY-MM-DD&sortBy=date|views|forwards|reactions
-  // Se passi date filtra solo i post di quel giorno (limit ignorato); altrimenti ritorna gli ultimi N.
+  // Se passi date filtra i post DA quel giorno in poi (limit ignorato); altrimenti ritorna gli ultimi N.
   // sortBy default = date (post_date desc).
   fastify.get("/telegram/stats/:channel", async (request) => {
     const { channel } = request.params;

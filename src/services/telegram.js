@@ -54,7 +54,7 @@ const getPostStatsByChannel = async (mysql, channel, { limit, date, sortBy } = {
     .orderBy("message_id", "desc");
 
   if (date) {
-    query.whereRaw("DATE(post_date) = ?", [date]);
+    query.where("post_date", ">=", `${date} 00:00:00`);
   }
   if (limit) {
     query.limit(limit);
