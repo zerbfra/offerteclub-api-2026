@@ -20,6 +20,11 @@ const config = {
       url: process.env.POSTGRES_DATAFEEDS_URL,
     },
   },
+  mysql: {
+    telegramStats: {
+      url: process.env.MYSQL_URL,
+    },
+  },
   amazon: {
     credentialId: process.env.AMAZON_CREDENTIAL_ID,
     credentialSecret: process.env.AMAZON_CREDENTIAL_SECRET,
@@ -74,6 +79,7 @@ configRequired(config, [
   "amazon.stores.it.partnerTag",
   "defaults.store",
   "postgres.datafeeds.url",
+  "mysql.telegramStats.url",
   "openai.apiKey",
   "meili.host",
   "meili.index",

@@ -24,6 +24,7 @@ async function build(opts = {}) {
   await app.register(require("./plugins/redis"));
   await app.register(require("./plugins/amazon"));
   await app.register(require("./plugins/postgres"));
+  await app.register(require("./plugins/mysql"));
   await app.register(require("./plugins/openai"));
   await app.register(require("./plugins/meilisearch"));
   await app.register(require("./plugins/chat"));
@@ -32,6 +33,7 @@ async function build(opts = {}) {
   // REGISTER ROUTES
   await app.register(require("./routes/amazon"), { prefix: "/api" });
   await app.register(require("./routes/datafeeds"), { prefix: "/api" });
+  await app.register(require("./routes/telegram"), { prefix: "/api" });
   await app.register(require("./routes/chat"), { prefix: "/api" });
 
   return app;
