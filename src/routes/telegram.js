@@ -10,13 +10,14 @@ const parseLimit = (value) => {
 };
 
 module.exports = async function (fastify) {
-  // GET /api/telegram/stats/:channel?limit=100|date=YYYY-MM-DD — Stats post Telegram per canale.
+  // GET /api/telegram/stats/:channel?limit=100|date=YYYY-MM-DD&sortBy=date|views|forwards|reactions
   // Se passi date filtra solo i post di quel giorno (limit ignorato); altrimenti ritorna gli ultimi N.
+  // sortBy default = date (post_date desc).
   fastify.get("/telegram/stats/:channel", async (request) => {
     const { channel } = request.params;
-    const { date } = request.query;
+    const { date, sortBy } = request.query;
     const limit = date ? null : parseLimit(request.query.limit);
-    const data = await getPostStatsByChannel(fastify.mysql, channel, { limit, date });
+    const data = await getPostStatsByChannel(fastify.mysql, channel, { limit, date, sortBy });
     return { status: 200, data };
   });
 };

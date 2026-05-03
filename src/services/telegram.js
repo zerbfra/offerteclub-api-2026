@@ -1,5 +1,14 @@
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+const SORT_BY_MAP = {
+  date: "post_date",
+  post_date: "post_date",
+  views: "views",
+  forwards: "forwards",
+  reactions: "reactions_total",
+  reactions_total: "reactions_total",
+};
+
 const normalizeChannel = (channel) => {
   const trimmed = (channel ?? "").toString().trim().replace(/^@+/, "");
   if (!trimmed) return null;
@@ -16,7 +25,7 @@ const formatRow = (row) => ({
   last_updated: row.last_updated,
 });
 
-const getPostStatsByChannel = async (mysql, channel, { limit, date } = {}) => {
+const getPostStatsByChannel = async (mysql, channel, { limit, date, sortBy } = {}) => {
   const normalized = normalizeChannel(channel);
   if (!normalized) {
     const err = new Error("Channel is required");
@@ -30,9 +39,18 @@ const getPostStatsByChannel = async (mysql, channel, { limit, date } = {}) => {
     throw err;
   }
 
+  const sortKey = sortBy ? SORT_BY_MAP[sortBy] : "post_date";
+  if (sortBy && !sortKey) {
+    const err = new Error(
+      `Invalid sortBy, allowed: ${Object.keys(SORT_BY_MAP).join(", ")}`,
+    );
+    err.statusCode = 400;
+    throw err;
+  }
+
   const query = mysql("post_stats")
     .where({ channel: normalized })
-    .orderBy("post_date", "desc")
+    .orderBy(sortKey, "desc")
     .orderBy("message_id", "desc");
 
   if (date) {
