@@ -25,7 +25,11 @@ const formatRow = (row) => ({
   last_updated: row.last_updated,
 });
 
-const getPostStatsByChannel = async (mysql, channel, { limit, date, sortBy } = {}) => {
+const getPostStatsByChannel = async (
+  mysql,
+  channel,
+  { limit, date, hours, sortBy } = {},
+) => {
   const normalized = normalizeChannel(channel);
   if (!normalized) {
     const err = new Error("Channel is required");
@@ -35,6 +39,12 @@ const getPostStatsByChannel = async (mysql, channel, { limit, date, sortBy } = {
 
   if (date && !DATE_RE.test(date)) {
     const err = new Error("Invalid date format, expected YYYY-MM-DD");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (hours != null && (!Number.isFinite(hours) || hours <= 0)) {
+    const err = new Error("Invalid hours, expected positive number");
     err.statusCode = 400;
     throw err;
   }
@@ -55,6 +65,8 @@ const getPostStatsByChannel = async (mysql, channel, { limit, date, sortBy } = {
 
   if (date) {
     query.where("post_date", ">=", `${date} 00:00:00`);
+  } else if (hours) {
+    query.whereRaw("post_date >= NOW() - INTERVAL ? HOUR", [hours]);
   }
   if (limit) {
     query.limit(limit);

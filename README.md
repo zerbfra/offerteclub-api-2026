@@ -45,6 +45,7 @@ Server in ascolto su `http://0.0.0.0:3000`.
 - **GET /api/telegram/stats/:channel** — Stats post Telegram per canale (passa il nome senza `@`). Query:
   - `limit` (default 100, max 1000) — ultimi N post.
   - `date=YYYY-MM-DD` — filtra i post DA quel giorno in poi (sostituisce `limit`).
+  - `hours=N` — filtra i post delle ultime N ore (combinabile con `limit`).
   - `sortBy` — `date` (default), `views`, `forwards`, `reactions`. Tutti DESC.
 
 ## Test rapidi
@@ -57,4 +58,5 @@ curl -H "x-store: IT" "http://127.0.0.1:3000/api/amazon/lookup/B093HM1JNP"
 curl "http://localhost:3000/api/telegram/stats/offertepuntocasa?limit=20"
 curl "http://localhost:3000/api/telegram/stats/offertepuntocasa?date=2026-05-03"
 curl "http://localhost:3000/api/telegram/stats/offertepuntocasa?limit=10&sortBy=views"
+curl "http://localhost:3000/api/telegram/stats/offertepuntocasa?hours=24&limit=50"
 ```
