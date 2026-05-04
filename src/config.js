@@ -55,6 +55,13 @@ const config = {
   chat: {
     corsOrigin: process.env.CHAT_CORS_ORIGIN || "*",
   },
+  firebase: {
+    credentialsPath: process.env.FIREBASE_CREDENTIALS_PATH,
+  },
+  yourlsStats: {
+    url: process.env.DO_FUNCTIONS_URL,
+    token: process.env.DO_FUNCTIONS_TOKEN,
+  },
 };
 
 function configRequired(config, requiredPaths) {
@@ -84,6 +91,9 @@ configRequired(config, [
   "meili.host",
   "meili.index",
   "meili.embedderName",
+  "firebase.credentialsPath",
+  "yourlsStats.url",
+  "yourlsStats.token",
 ]);
 
 module.exports = config;

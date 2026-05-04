@@ -29,12 +29,14 @@ async function build(opts = {}) {
   await app.register(require("./plugins/meilisearch"));
   await app.register(require("./plugins/chat"));
   await app.register(require("./plugins/socketio"));
+  await app.register(require("./plugins/firebase"));
 
   // REGISTER ROUTES
   await app.register(require("./routes/amazon"), { prefix: "/api" });
   await app.register(require("./routes/datafeeds"), { prefix: "/api" });
   await app.register(require("./routes/telegram"), { prefix: "/api" });
   await app.register(require("./routes/chat"), { prefix: "/api" });
+  await app.register(require("./routes/offers"), { prefix: "/api" });
 
   return app;
 }

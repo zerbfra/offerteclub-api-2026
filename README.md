@@ -8,6 +8,8 @@ Gateway HTTP (Fastify + Redis) che espone gli stessi endpoint della vecchia API 
 - Redis (locale o remoto)
 - PostgreSQL (datafeeds) — `POSTGRES_DATAFEEDS_URL`
 - MySQL (telegram stats) — `MYSQL_URL`
+- Firebase service account JSON — `FIREBASE_CREDENTIALS_PATH`
+- DigitalOcean Functions (Yourls click stats) — `DO_FUNCTIONS_URL` / `DO_FUNCTIONS_TOKEN`
 
 ## Setup
 
@@ -47,6 +49,10 @@ Server in ascolto su `http://0.0.0.0:3000`.
   - `date=YYYY-MM-DD` — filtra i post DA quel giorno in poi (sostituisce `limit`).
   - `hours=N` — filtra i post delle ultime N ore (combinabile con `limit`).
   - `sortBy` — `date` (default), `views`, `forwards`, `reactions`. Tutti DESC.
+- **GET /api/offers/top** — Top offerte aggregate dai click Yourls + arricchite con i dati del post Telegram da Firestore. Query:
+  - `period` — `today` (default), `yesterday`, `2days`, `week`.
+  - `category` — `all` (default), `tech`, `casa`, ...
+  - `limit` (default 20, max 100).
 
 ## Test rapidi
 
@@ -59,4 +65,6 @@ curl "http://localhost:3000/api/telegram/stats/offertepuntocasa?limit=20"
 curl "http://localhost:3000/api/telegram/stats/offertepuntocasa?date=2026-05-03"
 curl "http://localhost:3000/api/telegram/stats/offertepuntocasa?limit=10&sortBy=views"
 curl "http://localhost:3000/api/telegram/stats/offertepuntocasa?hours=24&limit=50"
+curl "http://localhost:3000/api/offers/top?period=today&limit=20"
+curl "http://localhost:3000/api/offers/top?period=week&category=tech"
 ```
