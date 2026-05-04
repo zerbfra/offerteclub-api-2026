@@ -265,8 +265,9 @@ const getTopOffers = async (firestore, { period, category, limit } = {}, log) =>
   const ranked = aggregateByUrl(clickStats);
   await enrichWithFirestore({ firestore, ranked, log });
 
-  const totalClicks = ranked.reduce((sum, e) => sum + e.clicks, 0);
-  const offers = ranked.slice(0, safeLimit).map(formatOffer);
+  const withPrice = ranked.filter((e) => e.price != null);
+  const totalClicks = withPrice.reduce((sum, e) => sum + e.clicks, 0);
+  const offers = withPrice.slice(0, safeLimit).map(formatOffer);
 
   return {
     offers,
