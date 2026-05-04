@@ -1,4 +1,4 @@
-const { getPostStatsByChannel } = require("../services/telegram");
+const { getPostStatsByChannel, enrichStatsWithFirestore } = require("../services/telegram");
 
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 1000;
@@ -25,15 +25,18 @@ module.exports = async function (fastify) {
   // sortBy default = date (post_date desc).
   fastify.get("/telegram/stats/:channel", async (request) => {
     const { channel } = request.params;
-    const { date, sortBy } = request.query;
+    const { date, sortBy, full } = request.query;
     const hours = parseHours(request.query.hours);
     const limit = date ? null : parseLimit(request.query.limit);
-    const data = await getPostStatsByChannel(fastify.mysql, channel, {
+    let data = await getPostStatsByChannel(fastify.mysql, channel, {
       limit,
       date,
       hours,
       sortBy,
     });
+    if (full === "true" || full === "1") {
+      data = await enrichStatsWithFirestore(fastify.firestore, channel, data);
+    }
     return { status: 200, data };
   });
 };

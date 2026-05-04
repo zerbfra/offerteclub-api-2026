@@ -1,4 +1,5 @@
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const FIRESTORE_IN_MAX = 30;
 
 const SORT_BY_MAP = {
   date: "post_date",
@@ -76,7 +77,35 @@ const getPostStatsByChannel = async (
   return rows.map(formatRow);
 };
 
+const enrichStatsWithFirestore = async (firestore, channel, rows) => {
+  if (rows.length === 0) return rows;
+
+  const normalizedChat = channel.replace(/^@/, "");
+  const messageIds = rows.map((r) => r.message_id);
+  const postsByMsgId = {};
+
+  for (let i = 0; i < messageIds.length; i += FIRESTORE_IN_MAX) {
+    const chunk = messageIds.slice(i, i + FIRESTORE_IN_MAX);
+    const snapshot = await firestore
+      .collection("posts")
+      .where("channel.telegramMessageId", "in", chunk)
+      .where("channel.chat", "==", `@${normalizedChat}`)
+      .get();
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data();
+      const msgId = data.channel?.telegramMessageId;
+      if (msgId != null) postsByMsgId[msgId] = data;
+    });
+  }
+
+  return rows.map((row) => {
+    const post = postsByMsgId[row.message_id];
+    return post ? { ...row, post } : row;
+  });
+};
+
 module.exports = {
   normalizeChannel,
   getPostStatsByChannel,
+  enrichStatsWithFirestore,
 };
