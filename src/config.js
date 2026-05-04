@@ -57,6 +57,7 @@ const config = {
   },
   firebase: {
     credentialsPath: process.env.FIREBASE_CREDENTIALS_PATH,
+    credentialsJson: process.env.FIREBASE_CREDENTIALS_JSON,
   },
   yourlsStats: {
     url: process.env.DO_FUNCTIONS_URL,
@@ -91,9 +92,14 @@ configRequired(config, [
   "meili.host",
   "meili.index",
   "meili.embedderName",
-  "firebase.credentialsPath",
   "yourlsStats.url",
   "yourlsStats.token",
 ]);
+
+if (!config.firebase.credentialsJson && !config.firebase.credentialsPath) {
+  throw new Error(
+    "Missing Firebase credentials: set FIREBASE_CREDENTIALS_JSON (inline JSON) or FIREBASE_CREDENTIALS_PATH (file path)",
+  );
+}
 
 module.exports = config;
