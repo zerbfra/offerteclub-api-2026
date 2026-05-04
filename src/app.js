@@ -37,6 +37,7 @@ async function build(opts = {}) {
   await app.register(require("./routes/telegram"), { prefix: "/api" });
   await app.register(require("./routes/chat"), { prefix: "/api" });
   await app.register(require("./routes/offers"), { prefix: "/api" });
+  await app.register(require("./routes/moderate"), { prefix: "/api" });
 
   return app;
 }
