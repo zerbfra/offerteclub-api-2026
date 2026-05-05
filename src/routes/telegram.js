@@ -1,4 +1,8 @@
-const { getPostStatsByChannel, enrichStatsWithFirestore } = require("../services/telegram");
+const {
+  getPostStatsByChannel,
+  enrichStatsWithFirestore,
+  filterOutMultiPosts,
+} = require("../services/telegram");
 
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 1000;
@@ -34,6 +38,7 @@ module.exports = async function (fastify) {
       hours,
       sortBy,
     });
+    data = await filterOutMultiPosts(fastify.firestore, channel, data);
     if (full === "true" || full === "1") {
       data = await enrichStatsWithFirestore(fastify.firestore, channel, data);
     }

@@ -104,8 +104,35 @@ const enrichStatsWithFirestore = async (firestore, channel, rows) => {
   });
 };
 
+const filterOutMultiPosts = async (firestore, channel, rows) => {
+  if (rows.length === 0) return rows;
+
+  const normalizedChat = channel.startsWith("@") ? channel : `@${channel.replace(/^@+/, "")}`;
+  const messageIds = rows.map((r) => r.message_id).filter((id) => Number.isFinite(id));
+  if (messageIds.length === 0) return rows;
+
+  const multiIds = new Set();
+  for (let i = 0; i < messageIds.length; i += FIRESTORE_IN_MAX) {
+    const chunk = messageIds.slice(i, i + FIRESTORE_IN_MAX);
+    const snapshot = await firestore
+      .collection("posts")
+      .where("channel.chat", "==", normalizedChat)
+      .where("channel.telegramMessageId", "in", chunk)
+      .where("multi", "==", true)
+      .get();
+    snapshot.docs.forEach((doc) => {
+      const id = doc.get("channel.telegramMessageId");
+      if (id != null) multiIds.add(Number(id));
+    });
+  }
+
+  if (multiIds.size === 0) return rows;
+  return rows.filter((r) => !multiIds.has(r.message_id));
+};
+
 module.exports = {
   normalizeChannel,
   getPostStatsByChannel,
   enrichStatsWithFirestore,
+  filterOutMultiPosts,
 };
