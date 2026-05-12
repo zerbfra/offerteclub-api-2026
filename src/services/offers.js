@@ -184,7 +184,7 @@ const fetchPostsByPayloadUrls = async (firestore, shortUrls) => {
     snapshot.docs.forEach((doc) => {
       const data = doc.data();
       const url = data.payload?.url;
-      if (url) result[url] = data;
+      if (url) result[url] = { ...data, docId: doc.id };
     });
   }
   return result;
@@ -213,6 +213,7 @@ const enrichWithFirestore = async ({ firestore, ranked, log }) => {
       e.note = p.note || "";
       e.channel = post.channel?.chat?.replace(/^@offertepunto/, "") || "";
       e.title = (p.title || e.title || "").replace(/^\s*\[[^\]]*\]\s*/, "");
+      e.docId = post.docId || null;
     });
   } catch (err) {
     log?.error({ err }, "firebase enrichment error");
@@ -221,6 +222,7 @@ const enrichWithFirestore = async ({ firestore, ranked, log }) => {
 
 const formatOffer = (entry, index) => ({
   rank: index + 1,
+  docId: entry.docId || null,
   title: (entry.title || "").replace(/^\s*\[[^\]]*\]\s*/, "").substring(0, 120),
   url: entry.fullUrl || entry.url,
   store: entry.store,
