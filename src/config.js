@@ -7,6 +7,11 @@ const toInt = (value, fallback) => {
   return Number.isNaN(parsed) ? fallback : parsed;
 };
 
+const toBool = (value, fallback = false) => {
+  if (value == null || value === "") return fallback;
+  return /^(1|true|yes|on)$/i.test(String(value));
+};
+
 const config = {
   port: parseInt(process.env.PORT, 10),
   redis: {
@@ -62,6 +67,15 @@ const config = {
   yourlsStats: {
     url: process.env.DO_FUNCTIONS_URL,
     token: process.env.DO_FUNCTIONS_TOKEN,
+  },
+  push: {
+    adminToken: process.env.PUSH_ADMIN_TOKEN,
+    expoAccessToken: process.env.EXPO_ACCESS_TOKEN || undefined,
+    listenerEnabled: toBool(process.env.PUSH_LISTENER_ENABLED, false),
+    country: process.env.PUSH_COUNTRY || "it",
+    idempotencyTtlSeconds: toInt(process.env.PUSH_IDEMPOTENCY_TTL_SECONDS, 7 * 24 * 3600),
+    receiptDelaySeconds: toInt(process.env.PUSH_RECEIPT_DELAY_SECONDS, 15 * 60),
+    receiptPollIntervalSeconds: toInt(process.env.PUSH_RECEIPT_POLL_INTERVAL_SECONDS, 60),
   },
 };
 
