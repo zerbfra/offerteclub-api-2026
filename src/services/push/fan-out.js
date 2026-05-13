@@ -4,7 +4,19 @@ const { getUserDeviceTokens, sendBatch } = require("./expo");
 const { markPushed } = require("./idempotency");
 const { enqueueReceipts } = require("./receipts");
 
+const { notificationExpiresAt } = require("./ttl");
+
 const FAVS_CHUNK = 30;
+
+// Match "minimo storico" e varianti: minimo/minima/minimi/minime + storico/storica/storici/storiche.
+// Case-insensitive, accetta carattere extra non-spazio prima/dopo (es. "🔥minimo storico!").
+const HISTORIC_MIN_RE = /\bminim\w*\s+storic\w*/i;
+
+const isHistoricMin = (post) => {
+  const comment = post?.payload?.comment;
+  if (typeof comment !== "string" || !comment) return false;
+  return HISTORIC_MIN_RE.test(comment);
+};
 
 /**
  * Trova gli uid che vogliono ricevere `discount_threshold` per un post con
@@ -23,6 +35,21 @@ const recipientsByDiscountThreshold = async (firestore, discount) => {
     const min = doc.data()?.notifPrefs?.minDiscount;
     if (typeof min === "number" && min > 0) uids.push(doc.id);
   });
+  return uids;
+};
+
+/**
+ * Trova gli uid che vogliono ricevere `price_drop` (minimo storico).
+ * Filtra notifPrefs.pushEnabled=true && notifPrefs.historicMin=true.
+ */
+const recipientsByHistoricMin = async (firestore) => {
+  const snap = await firestore
+    .collection("users")
+    .where("notifPrefs.pushEnabled", "==", true)
+    .where("notifPrefs.historicMin", "==", true)
+    .get();
+  const uids = [];
+  snap.forEach((doc) => uids.push(doc.id));
   return uids;
 };
 
@@ -57,8 +84,14 @@ const recipientsByFavoriteHit = async (firestore, postId) => {
 };
 
 const buildMessages = ({ tokens, postId, post, type }) => {
-  const title =
-    type === "favorite_hit" ? "Un tuo preferito è in offerta" : `Sconto del ${post.discount}%`;
+  let title;
+  if (type === "favorite_hit") {
+    title = "Un tuo preferito è in offerta";
+  } else if (type === "price_drop") {
+    title = "Minimo storico!";
+  } else {
+    title = `Sconto del ${post.discount}%`;
+  }
   const body = (post.payload?.title || "Apri l'app per vedere l'offerta").slice(0, 140);
   const image = post.payload?.image || post.payload?.framedImage || null;
 
@@ -83,6 +116,7 @@ const buildMessages = ({ tokens, postId, post, type }) => {
     dealId: postId,
     image: image || null,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    expiresAt: notificationExpiresAt(),
     read: false,
   };
 
@@ -122,9 +156,27 @@ const fanOutPush = async ({ deps, postId, post }) => {
   const first = await markPushed(redis, postId, config.push.idempotencyTtlSeconds);
   if (!first) return;
 
-  log?.info({ postId, discount }, "[push] fan-out start");
+  const historicMin = isHistoricMin(post);
+  log?.info({ postId, discount, historicMin }, "[push] fan-out start");
 
   const allTickets = [];
+
+  if (historicMin) {
+    const uids = await recipientsByHistoricMin(firestore);
+    for (const uid of uids) {
+      const tickets = await dispatchToUser({
+        firestore,
+        expo,
+        uid,
+        postId,
+        post: { ...post, discount },
+        type: "price_drop",
+        log,
+      });
+      allTickets.push(...tickets);
+    }
+    log?.info({ postId, recipients: uids.length }, "[push] price_drop dispatched");
+  }
 
   if (Number.isFinite(discount) && discount > 0) {
     const uids = await recipientsByDiscountThreshold(firestore, discount);

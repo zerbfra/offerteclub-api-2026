@@ -1,6 +1,7 @@
 const admin = require("firebase-admin");
 const config = require("../config");
 const { enqueueReceipts } = require("../services/push/receipts");
+const { notificationExpiresAt } = require("../services/push/ttl");
 
 const ALLOWED_TYPES = new Set([
   "price_drop",
@@ -90,6 +91,7 @@ module.exports = async function (fastify) {
           webUrl: webUrl || null,
           webTitle: webTitle || null,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          expiresAt: notificationExpiresAt(),
           read: false,
         });
     } catch (err) {
