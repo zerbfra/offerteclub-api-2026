@@ -145,6 +145,10 @@ const dispatchToUser = async ({ firestore, expo, uid, postId, post, type, log })
 
 /**
  * Entrypoint del fan-out per un nuovo post. Idempotente via Redis (NX + TTL).
+ *
+ * Dedup per (uid, postId): se un utente matcha più criteri, riceve UNA sola
+ * push con il tipo a priorità più alta:
+ *   favorite_hit > price_drop > discount_threshold
  */
 const fanOutPush = async ({ deps, postId, post }) => {
   const { firestore, redis, expo, config, log } = deps;
@@ -159,57 +163,55 @@ const fanOutPush = async ({ deps, postId, post }) => {
   const historicMin = isHistoricMin(post);
   log?.info({ postId, discount, historicMin }, "[push] fan-out start");
 
+  const [favUids, historicUids, discountUids] = await Promise.all([
+    recipientsByFavoriteHit(firestore, postId),
+    historicMin ? recipientsByHistoricMin(firestore) : Promise.resolve([]),
+    Number.isFinite(discount) && discount > 0
+      ? recipientsByDiscountThreshold(firestore, discount)
+      : Promise.resolve([]),
+  ]);
+
+  // Priorità: favorite_hit > price_drop > discount_threshold
+  const uidType = new Map();
+  for (const uid of favUids) uidType.set(uid, "favorite_hit");
+  for (const uid of historicUids) {
+    if (!uidType.has(uid)) uidType.set(uid, "price_drop");
+  }
+  for (const uid of discountUids) {
+    if (!uidType.has(uid)) uidType.set(uid, "discount_threshold");
+  }
+
+  log?.info(
+    {
+      postId,
+      candidates: {
+        favorite_hit: favUids.length,
+        price_drop: historicUids.length,
+        discount_threshold: discountUids.length,
+      },
+      uniqueRecipients: uidType.size,
+    },
+    "[push] fan-out recipients",
+  );
+
   const allTickets = [];
-
-  if (historicMin) {
-    const uids = await recipientsByHistoricMin(firestore);
-    for (const uid of uids) {
-      const tickets = await dispatchToUser({
-        firestore,
-        expo,
-        uid,
-        postId,
-        post: { ...post, discount },
-        type: "price_drop",
-        log,
-      });
-      allTickets.push(...tickets);
-    }
-    log?.info({ postId, recipients: uids.length }, "[push] price_drop dispatched");
-  }
-
-  if (Number.isFinite(discount) && discount > 0) {
-    const uids = await recipientsByDiscountThreshold(firestore, discount);
-    for (const uid of uids) {
-      const tickets = await dispatchToUser({
-        firestore,
-        expo,
-        uid,
-        postId,
-        post: { ...post, discount },
-        type: "discount_threshold",
-        log,
-      });
-      allTickets.push(...tickets);
-    }
-    log?.info({ postId, recipients: uids.length }, "[push] discount_threshold dispatched");
-  }
-
-  const favUids = await recipientsByFavoriteHit(firestore, postId);
-  for (const uid of favUids) {
+  const dispatched = { favorite_hit: 0, price_drop: 0, discount_threshold: 0 };
+  for (const [uid, type] of uidType) {
     const tickets = await dispatchToUser({
       firestore,
       expo,
       uid,
       postId,
       post: { ...post, discount },
-      type: "favorite_hit",
+      type,
       log,
     });
     allTickets.push(...tickets);
+    dispatched[type] += 1;
   }
-  if (favUids.length > 0) {
-    log?.info({ postId, recipients: favUids.length }, "[push] favorite_hit dispatched");
+
+  if (uidType.size > 0) {
+    log?.info({ postId, dispatched, tickets: allTickets.length }, "[push] fan-out dispatched");
   }
 
   if (allTickets.length > 0) {
@@ -220,8 +222,6 @@ const fanOutPush = async ({ deps, postId, post }) => {
       config.push.idempotencyTtlSeconds,
     );
   }
-
-  return { discountRecipients: 0, favoriteRecipients: favUids.length, tickets: allTickets.length };
 };
 
 module.exports = { fanOutPush };
