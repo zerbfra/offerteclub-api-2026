@@ -206,13 +206,12 @@ const enrichWithFirestore = async ({ firestore, ranked, log }) => {
         current != null && original != null && original > 0
           ? Math.round((1 - current / original) * 100)
           : null;
+      e.payload = p;
       e.fullUrl = p.fullUrl || p.url || e.url;
       e.note = p.note || "";
       e.channel = post.channel?.chat?.replace(/^@offertepunto/, "") || "";
       e.title = (p.title || e.title || "").replace(/^\s*\[[^\]]*\]\s*/, "");
       e.docId = post.docId || null;
-      e.ean = p.ean || null;
-      e.asin = p.asin || null;
     });
   } catch (err) {
     log?.error({ err }, "firebase enrichment error");
@@ -220,6 +219,7 @@ const enrichWithFirestore = async ({ firestore, ranked, log }) => {
 };
 
 const formatOffer = (entry, index) => ({
+  ...(entry.payload || {}),
   rank: index + 1,
   docId: entry.docId || null,
   title: (entry.title || "").replace(/^\s*\[[^\]]*\]\s*/, "").substring(0, 120),
@@ -232,8 +232,6 @@ const formatOffer = (entry, index) => ({
   discount: entry.discount || null,
   note: entry.note || "",
   channel: entry.channel || "",
-  ean: entry.ean || null,
-  asin: entry.asin || null,
 });
 
 /**
