@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 const { computeDiscount } = require("./parse-price");
+const { parseChannel } = require("./parse-channel");
 const { getUserDeviceTokens, sendBatch } = require("./expo");
 const { markPushed } = require("./idempotency");
 const { enqueueReceipts } = require("./receipts");
@@ -22,8 +23,17 @@ const isHistoricMin = (post) => {
  * Trova gli uid che vogliono ricevere `discount_threshold` per un post con
  * lo sconto dato. Firestore non supporta range combinati `>` e `<=`, quindi
  * filtriamo `> 0` lato server.
+ *
+ * Filtro `channels` (post-filter in memoria per non escludere i doc legacy
+ * senza il campo, che `array-contains` taglierebbe fuori):
+ *   - channels undefined/non-array  → include (legacy = tutte le categorie)
+ *   - channels array vuoto          → escludi (opt-out esplicito)
+ *   - channels include postChannel  → includi
+ *   - altrimenti                    → escludi
+ * Se postChannel è null (canale non mappato), salta il filtro per evitare
+ * di azzerare le push su canali nuovi non ancora aggiunti a parseChannel.
  */
-const recipientsByDiscountThreshold = async (firestore, discount) => {
+const recipientsByDiscountThreshold = async (firestore, discount, postChannel) => {
   if (!Number.isFinite(discount) || discount <= 0) return [];
   const snap = await firestore
     .collection("users")
@@ -32,8 +42,14 @@ const recipientsByDiscountThreshold = async (firestore, discount) => {
     .get();
   const uids = [];
   snap.forEach((doc) => {
-    const min = doc.data()?.notifPrefs?.minDiscount;
-    if (typeof min === "number" && min > 0) uids.push(doc.id);
+    const prefs = doc.data()?.notifPrefs;
+    const min = prefs?.minDiscount;
+    if (typeof min !== "number" || min <= 0) return;
+    if (postChannel) {
+      const channels = prefs?.channels;
+      if (Array.isArray(channels) && !channels.includes(postChannel)) return;
+    }
+    uids.push(doc.id);
   });
   return uids;
 };
@@ -177,13 +193,14 @@ const fanOutPush = async ({ deps, postId, post }) => {
   if (!first) return;
 
   const historicMin = isHistoricMin(post);
-  log?.info({ postId, discount, historicMin }, "[push] fan-out start");
+  const postChannel = parseChannel(post?.channel?.chat);
+  log?.info({ postId, discount, historicMin, postChannel }, "[push] fan-out start");
 
   const [favUids, historicUids, discountUids] = await Promise.all([
     recipientsByFavoriteHit(firestore, post),
     historicMin ? recipientsByHistoricMin(firestore) : Promise.resolve([]),
     Number.isFinite(discount) && discount > 0
-      ? recipientsByDiscountThreshold(firestore, discount)
+      ? recipientsByDiscountThreshold(firestore, discount, postChannel)
       : Promise.resolve([]),
   ]);
 
