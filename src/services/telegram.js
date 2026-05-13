@@ -26,11 +26,7 @@ const formatRow = (row) => ({
   last_updated: row.last_updated,
 });
 
-const getPostStatsByChannel = async (
-  mysql,
-  channel,
-  { limit, date, hours, sortBy } = {},
-) => {
+const getPostStatsByChannel = async (mysql, channel, { limit, date, hours, sortBy } = {}) => {
   const normalized = normalizeChannel(channel);
   if (!normalized) {
     const err = new Error("Channel is required");
@@ -52,9 +48,7 @@ const getPostStatsByChannel = async (
 
   const sortKey = sortBy ? SORT_BY_MAP[sortBy] : "post_date";
   if (sortBy && !sortKey) {
-    const err = new Error(
-      `Invalid sortBy, allowed: ${Object.keys(SORT_BY_MAP).join(", ")}`,
-    );
+    const err = new Error(`Invalid sortBy, allowed: ${Object.keys(SORT_BY_MAP).join(", ")}`);
     err.statusCode = 400;
     throw err;
   }
@@ -100,7 +94,7 @@ const enrichStatsWithFirestore = async (firestore, channel, rows) => {
 
   return rows.map((row) => {
     const post = postsByMsgId[row.message_id];
-    return post ? { ...row, post } : row;
+    return post ? { ...row, ...post } : row;
   });
 };
 
