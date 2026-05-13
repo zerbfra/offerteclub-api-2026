@@ -12,14 +12,19 @@ const buildExpoClient = (config) =>
  */
 const getUserDeviceTokens = async (firestore, uid) => {
   const snap = await firestore.collection("users").doc(uid).collection("devices").get();
-  const tokens = [];
+  const byToken = new Map();
   snap.forEach((doc) => {
     const data = doc.data();
     if (data && typeof data.pushToken === "string" && Expo.isExpoPushToken(data.pushToken)) {
-      tokens.push({ token: data.pushToken, deviceId: doc.id, uid });
+      // Dedup per pushToken: se due doc puntano allo stesso token (es. dopo
+      // un re-install che ha lasciato un doc zombie), evita di spedire la
+      // stessa push due volte. Il primo doc visto vince.
+      if (!byToken.has(data.pushToken)) {
+        byToken.set(data.pushToken, { token: data.pushToken, deviceId: doc.id, uid });
+      }
     }
   });
-  return tokens;
+  return [...byToken.values()];
 };
 
 /**
