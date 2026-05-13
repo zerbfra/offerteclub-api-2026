@@ -197,20 +197,10 @@ const enrichWithFirestore = async ({ firestore, ranked, log }) => {
     topEntries.forEach((e) => {
       const post = e.shortUrls.map((s) => postsByUrl[s]).find((p) => p?.payload);
       if (!post) return;
-      const p = post.payload;
-      const { current, original } = parsePrice(p.price || "");
-      e.image = p.image || p.framedImage || "";
-      e.price = current;
-      e.originalPrice = original;
-      e.discount =
-        current != null && original != null && original > 0
-          ? Math.round((1 - current / original) * 100)
-          : null;
-      e.payload = p;
-      e.fullUrl = p.fullUrl || p.url || e.url;
-      e.note = p.note || "";
-      e.channel = post.channel?.chat?.replace(/^@offertepunto/, "") || "";
-      e.title = (p.title || e.title || "").replace(/^\s*\[[^\]]*\]\s*/, "");
+      // Manteniamo `e.price` solo per il filtro `withPrice` sotto; non viene esposto.
+      e.price = parsePrice(post.payload.price || "").current;
+      e.payload = post.payload;
+      e.channel = post.channel || null;
       e.docId = post.docId || null;
     });
   } catch (err) {
@@ -219,19 +209,11 @@ const enrichWithFirestore = async ({ firestore, ranked, log }) => {
 };
 
 const formatOffer = (entry, index) => ({
-  ...(entry.payload || {}),
   rank: index + 1,
   docId: entry.docId || null,
-  title: (entry.title || "").replace(/^\s*\[[^\]]*\]\s*/, "").substring(0, 120),
-  url: entry.fullUrl || entry.url,
-  store: entry.store,
   clicks: entry.clicks,
-  image: entry.image || "",
-  price: entry.price || null,
-  originalPrice: entry.originalPrice || null,
-  discount: entry.discount || null,
-  note: entry.note || "",
-  channel: entry.channel || "",
+  channel: entry.channel || null,
+  payload: entry.payload || null,
 });
 
 /**
