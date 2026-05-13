@@ -54,18 +54,34 @@ const recipientsByHistoricMin = async (firestore) => {
 };
 
 /**
- * Trova gli uid che hanno il post nei preferiti (user_favs/{uid}/items/{postId})
+ * Trova gli uid che hanno il prodotto nei preferiti (`user_favs/{uid}/items/*`)
  * e hanno notifPrefs.favoritesAlerts && notifPrefs.pushEnabled.
+ *
+ * Il match è per **prodotto**, non per singolo post: lo stesso ASIN/EAN può
+ * essere pubblicato più volte con `postId` diversi. Confrontiamo:
+ *  - `payload.ean` ↔ `items.ean` (primario)
+ *  - `payload.asin` ↔ `items.asin` (in unione: cattura i preferiti salvati
+ *    solo con asin, e fa da fallback se il post non ha ean).
  */
-const recipientsByFavoriteHit = async (firestore, postId) => {
-  const snap = await firestore.collectionGroup("items").where("id", "==", postId).get();
+const recipientsByFavoriteHit = async (firestore, post) => {
+  const ean = post?.payload?.ean;
+  const asin = post?.payload?.asin;
+  if (!ean && !asin) return [];
+
+  const queries = [];
+  if (ean) queries.push(firestore.collectionGroup("items").where("ean", "==", ean).get());
+  if (asin) queries.push(firestore.collectionGroup("items").where("asin", "==", asin).get());
+  const snaps = await Promise.all(queries);
+
   const uids = new Set();
-  snap.forEach((doc) => {
-    const segments = doc.ref.path.split("/");
-    if (segments.length >= 2 && segments[0] === "user_favs") {
-      uids.add(segments[1]);
-    }
-  });
+  for (const snap of snaps) {
+    snap.forEach((doc) => {
+      const segments = doc.ref.path.split("/");
+      if (segments.length >= 2 && segments[0] === "user_favs") {
+        uids.add(segments[1]);
+      }
+    });
+  }
   if (uids.size === 0) return [];
 
   const result = [];
@@ -164,7 +180,7 @@ const fanOutPush = async ({ deps, postId, post }) => {
   log?.info({ postId, discount, historicMin }, "[push] fan-out start");
 
   const [favUids, historicUids, discountUids] = await Promise.all([
-    recipientsByFavoriteHit(firestore, postId),
+    recipientsByFavoriteHit(firestore, post),
     historicMin ? recipientsByHistoricMin(firestore) : Promise.resolve([]),
     Number.isFinite(discount) && discount > 0
       ? recipientsByDiscountThreshold(firestore, discount)

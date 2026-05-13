@@ -177,10 +177,7 @@ const fetchPostsByPayloadUrls = async (firestore, shortUrls) => {
   const result = {};
   for (let i = 0; i < shortUrls.length; i += FIRESTORE_IN_MAX) {
     const chunk = shortUrls.slice(i, i + FIRESTORE_IN_MAX);
-    const snapshot = await firestore
-      .collection("posts")
-      .where("payload.url", "in", chunk)
-      .get();
+    const snapshot = await firestore.collection("posts").where("payload.url", "in", chunk).get();
     snapshot.docs.forEach((doc) => {
       const data = doc.data();
       const url = data.payload?.url;
@@ -214,6 +211,8 @@ const enrichWithFirestore = async ({ firestore, ranked, log }) => {
       e.channel = post.channel?.chat?.replace(/^@offertepunto/, "") || "";
       e.title = (p.title || e.title || "").replace(/^\s*\[[^\]]*\]\s*/, "");
       e.docId = post.docId || null;
+      e.ean = p.ean || null;
+      e.asin = p.asin || null;
     });
   } catch (err) {
     log?.error({ err }, "firebase enrichment error");
@@ -233,6 +232,8 @@ const formatOffer = (entry, index) => ({
   discount: entry.discount || null,
   note: entry.note || "",
   channel: entry.channel || "",
+  ean: entry.ean || null,
+  asin: entry.asin || null,
 });
 
 /**
@@ -241,9 +242,7 @@ const formatOffer = (entry, index) => ({
  */
 const getTopOffers = async (firestore, { period, category, limit } = {}, log) => {
   if (period && !VALID_PERIODS.has(period)) {
-    const err = new Error(
-      `Invalid period, allowed: ${[...VALID_PERIODS].join(", ")}`,
-    );
+    const err = new Error(`Invalid period, allowed: ${[...VALID_PERIODS].join(", ")}`);
     err.statusCode = 400;
     throw err;
   }
