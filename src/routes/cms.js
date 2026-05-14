@@ -32,6 +32,11 @@ const AI_CHIPS = [
       "Cerco un notebook per università con buona autonomia, schermo 14-15 pollici, 16GB RAM e prezzo sotto 700€.",
   },
   {
+    label: "Smartphone economico",
+    query:
+      "Cerco uno smartphone economico, sotto i 300€, che abbia una buona fotocamera e una buona batteria",
+  },
+  {
     label: "Regalo <50€",
     query: "Mi suggerisci 3 idee regalo originali con un prezzo sotto i 50€?",
   },
