@@ -19,13 +19,18 @@ function parseProductIds(value) {
 }
 
 /** Costruisce l’oggetto filtri di ricerca a partire dalla query string. */
+// Stringhe vuote dalla query (`?brand=`) le tratta come assenti, così non
+// finiscono nel body verso Amazon che rifiuta i campi non vuoti (es.
+// `searchIndex: ""` → 400 ValidationException su regex `.*\S.*`).
+const blank = (v) => (typeof v === "string" && v.trim() === "" ? undefined : v);
+
 function buildSearchFilter(query) {
   return {
-    browseNodeId: query.category,
-    maxPrice: query.maxPrice,
-    minPrice: query.minPrice,
-    brand: query.brand,
-    searchIndex: query.searchIndex,
+    browseNodeId: blank(query.category),
+    maxPrice: blank(query.maxPrice),
+    minPrice: blank(query.minPrice),
+    brand: blank(query.brand),
+    searchIndex: blank(query.searchIndex),
   };
 }
 
