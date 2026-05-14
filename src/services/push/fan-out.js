@@ -115,7 +115,23 @@ const recipientsByFavoriteHit = async (firestore, post) => {
   return result;
 };
 
-const buildMessages = ({ tokens, postId, post, type }) => {
+// Estrae dal payload Firebase solo i campi scalari (string/number/boolean),
+// escludendo oggetti, array e le chiavi in `excludeKeys`. Tiene la push leggera
+// e sotto il limite payload Expo (~4KB) anche se Firebase aggiunge campi nuovi.
+const buildDealPayload = (payload, excludeKeys) => {
+  if (!payload || typeof payload !== "object") return null;
+  const excluded = new Set(excludeKeys);
+  const out = {};
+  for (const [k, v] of Object.entries(payload)) {
+    if (excluded.has(k)) continue;
+    if (v === null || v === undefined) continue;
+    if (typeof v === "object") continue;
+    out[k] = v;
+  }
+  return Object.keys(out).length > 0 ? out : null;
+};
+
+const buildMessages = ({ tokens, postId, post, type, payloadExcludeKeys }) => {
   let title;
   if (type === "favorite_hit") {
     title = "Un tuo preferito è in offerta";
@@ -126,6 +142,7 @@ const buildMessages = ({ tokens, postId, post, type }) => {
   }
   const body = (post.payload?.title || "Apri l'app per vedere l'offerta").slice(0, 140);
   const image = post.payload?.image || post.payload?.framedImage || null;
+  const dealPayload = buildDealPayload(post.payload, payloadExcludeKeys);
 
   const messages = tokens.map((t) => ({
     to: t.token,
@@ -136,6 +153,7 @@ const buildMessages = ({ tokens, postId, post, type }) => {
     channelId: "default",
     data: {
       dealId: postId,
+      dealPayload: dealPayload || undefined,
       type,
       image: image || undefined,
     },
@@ -155,11 +173,20 @@ const buildMessages = ({ tokens, postId, post, type }) => {
   return { messages, mirror };
 };
 
-const dispatchToUser = async ({ firestore, expo, uid, postId, post, type, log }) => {
+const dispatchToUser = async ({
+  firestore,
+  expo,
+  uid,
+  postId,
+  post,
+  type,
+  payloadExcludeKeys,
+  log,
+}) => {
   const tokens = await getUserDeviceTokens(firestore, uid);
   if (tokens.length === 0) return [];
 
-  const { messages, mirror } = buildMessages({ tokens, postId, post, type });
+  const { messages, mirror } = buildMessages({ tokens, postId, post, type, payloadExcludeKeys });
   const tickets = await sendBatch(expo, messages, log);
 
   try {
@@ -237,6 +264,7 @@ const fanOutPush = async ({ deps, postId, post }) => {
       postId,
       post: { ...post, discount },
       type,
+      payloadExcludeKeys: config.push.payloadExcludeKeys,
       log,
     });
     allTickets.push(...tickets);

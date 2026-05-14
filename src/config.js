@@ -76,6 +76,10 @@ const config = {
     idempotencyTtlSeconds: toInt(process.env.PUSH_IDEMPOTENCY_TTL_SECONDS, 7 * 24 * 3600),
     receiptDelaySeconds: toInt(process.env.PUSH_RECEIPT_DELAY_SECONDS, 15 * 60),
     receiptPollIntervalSeconds: toInt(process.env.PUSH_RECEIPT_POLL_INTERVAL_SECONDS, 60),
+    payloadExcludeKeys: (process.env.PUSH_PAYLOAD_EXCLUDE_KEYS || "browseNodeChain,features,variations")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
   },
 };
 
