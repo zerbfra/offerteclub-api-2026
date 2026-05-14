@@ -395,6 +395,19 @@
             },
             "description": "Lista dei brand in evidenza per la home/discovery. Per ora hardcoded lato API, in futuro arriverà da un CMS esterno."
           }
+        },
+        {
+          "name": "AI chips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/ai-chips",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "ai-chips"]
+            },
+            "description": "Suggerimenti rapidi (chip label + query precompilata) per la chat AI."
+          }
         }
       ]
     }
