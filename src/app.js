@@ -40,6 +40,7 @@ async function build(opts = {}) {
   await app.register(require("./routes/offers"), { prefix: "/api" });
   await app.register(require("./routes/moderate"), { prefix: "/api" });
   await app.register(require("./routes/push"), { prefix: "/api" });
+  await app.register(require("./routes/cms"), { prefix: "/api" });
 
   return app;
 }

@@ -379,6 +379,24 @@
           }
         }
       ]
+    },
+    {
+      "name": "CMS",
+      "item": [
+        {
+          "name": "Top brands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/top-brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "top-brands"]
+            },
+            "description": "Lista dei brand in evidenza per la home/discovery. Per ora hardcoded lato API, in futuro arriverà da un CMS esterno."
+          }
+        }
+      ]
     }
   ]
 }
