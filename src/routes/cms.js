@@ -96,7 +96,7 @@ const HOME_EVENT_ENDS_AT = "2001-05-31T23:59:59";
 const HOME_EVENTS = {
   "black-friday": {
     key: "black-friday",
-    active: true,
+    active: false,
     titleLines: ["Black", "Friday"],
     subtitle: "La settimana più bollente dell'anno",
     badgeLabel: "EVENTO IN CORSO",
