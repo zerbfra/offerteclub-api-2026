@@ -408,6 +408,19 @@
             },
             "description": "Suggerimenti rapidi (chip label + query precompilata) per la chat AI."
           }
+        },
+        {
+          "name": "Home chips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/home-chips",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "home-chips"]
+            },
+            "description": "Chip della home (categorie/scorciatoie). Array ordinato; `pinned: true` indica i chip da ancorare in testa."
+          }
         }
       ]
     }

@@ -52,6 +52,39 @@ const AI_CHIPS = [
   },
 ];
 
+const HOME_CHIPS = [
+  {
+    key: "marchi-top",
+    label: "Marchi TOP",
+    pinned: true,
+    params: { title: "Marchi TOP", source: "firebase", brands: "" },
+  },
+  {
+    key: "trending-tech",
+    label: "Trending Tech",
+    pinned: false,
+    params: { title: "Trending Tech", source: "trending", channel: "offertepuntotech" },
+  },
+  {
+    key: "trending-casa",
+    label: "Trending Casa",
+    pinned: false,
+    params: { title: "Trending Casa", source: "trending", channel: "offertepuntocasa" },
+  },
+  {
+    key: "piu-scontati",
+    label: "Più scontati",
+    pinned: false,
+    params: { title: "I più scontati", source: "firebase", minDiscount: "30" },
+  },
+  {
+    key: "piu-economici",
+    label: "Più economici",
+    pinned: false,
+    params: { title: "I più economici", source: "firebase", maxPrice: "20" },
+  },
+];
+
 module.exports = async function (fastify) {
   // GET /api/cms/top-brands — Lista dei brand in evidenza per la home/discovery.
   fastify.get("/cms/top-brands", async () => {
@@ -61,5 +94,12 @@ module.exports = async function (fastify) {
   // GET /api/cms/ai-chips — Suggerimenti rapidi (chip) per la chat AI.
   fastify.get("/cms/ai-chips", async () => {
     return { status: 200, data: AI_CHIPS };
+  });
+
+  // GET /api/cms/home-chips — Chip della home (categorie/scorciatoie).
+  // L'ordine dell'array è significativo; `pinned: true` marca quelli da
+  // ancorare in testa lato client.
+  fastify.get("/cms/home-chips", async () => {
+    return { status: 200, data: HOME_CHIPS };
   });
 };
