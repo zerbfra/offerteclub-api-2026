@@ -77,19 +77,42 @@
           }
         },
         {
-          "name": "By param key/value",
+          "name": "Awin search by param key/value (partial)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/datafeeds/brand/Apple?store=",
+              "raw": "{{baseUrl}}/api/datafeeds/awin/search?field=product_name&q=JBL Go&store=&limit=",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "datafeeds", "brand", "Apple"],
+              "path": ["api", "datafeeds", "awin", "search"],
               "query": [
-                { "key": "store", "value": "", "description": "Filtra per store (opzionale, es. amazon, aliexpress)" }
+                { "key": "field", "value": "product_name", "description": "Chiave nel payload su cui cercare" },
+                { "key": "q", "value": "JBL Go", "description": "Testo da cercare (multi-parola, case-insensitive)" },
+                { "key": "store", "value": "", "description": "Filtra per store (opzionale, es. amazon, aliexpress)" },
+                { "key": "limit", "value": "", "description": "Max risultati (opzionale, intero > 0)" }
               ]
             },
-            "description": "Cerca nei datafeed per chiave/valore generico nel payload (es. brand=Apple, category=...)."
+            "description": "Ricerca parziale case-insensitive su un campo del payload awin. `field` e `q` obbligatori; più parole lunghe → match per parola in AND, ordine indifferente; se una parola è < 3 caratteri (es. 'iphone 17') la query è trattata come stringa contigua. `store` e `limit` opzionali."
+          }
+        },
+        {
+          "name": "Amazon deals search by param key/value",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/datafeeds/amazon-deals/search?field=title&q=benetton uomo&limit=&order=&browseNode=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "datafeeds", "amazon-deals", "search"],
+              "query": [
+                { "key": "field", "value": "title", "description": "Colonna su cui filtrare (whitelist: dealID, asin, dealTitle, title, itemPrice, ...)" },
+                { "key": "q", "value": "benetton uomo", "description": "Testo da cercare (multi-parola, case-insensitive). Parola < 3 char (es. 'iphone 17') → match contiguo" },
+                { "key": "limit", "value": "", "description": "Max risultati (opzionale, intero > 0)" },
+                { "key": "order", "value": "", "description": "Ordinamento: 'dealPrice' = prezzo decrescente; vuoto/altro = attinenza (default)" },
+                { "key": "browseNode", "value": "", "description": "Filtro categoria browseNodeId1: uno o più id separati da virgola (es. 460078031,5715226031). Opzionale" }
+              ]
+            },
+            "description": "Deals Amazon dalla view arricchita `amazon_deals_enriched` (deal + info all_feeds_standard via asin): ricerca multi-parola `colonna::text ILIKE`. `field` e `q` obbligatori, `limit`/`order`/`browseNode` opzionali; più parole lunghe → match per parola in AND (ordine indifferente), se una parola è < 3 caratteri (es. 'iphone 17') la query è trattata come stringa contigua. `order=dealPrice` ordina per prezzo decrescente (NULLS LAST), altrimenti per attinenza word_similarity (default). `browseNode`: uno o più id (virgola) → filtro IN su browseNodeId1; valori non interi ignorati. `field` accetta sia le colonne del deal sia i campi di all_feeds_standard coi loro nomi originali (es. title, itemPrice), che escono sotto `standard`. Ritorna solo i deal attivi ora (now tra dealStartTime e dealEndTime; deal con date NULL esclusi)."
           }
         }
       ]

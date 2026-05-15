@@ -6,7 +6,7 @@ const {
 } = require("../../../lib/utils");
 const amazonService = require("../../amazon");
 const {
-  getDataFeedByEans,
+  getAwinDatafeedByEans,
   getAliexpressByEans,
 } = require("../../datafeeds");
 const { buildAmazonEnrichmentMap, buildDatafeedMaps } = require("./utils");
@@ -86,7 +86,7 @@ const enrichProducts = async (hits, deps = {}) => {
   if (uniqueEans.length > 0) {
     try {
       const [awinData, aliexpressData] = await Promise.all([
-        getDataFeedByEans(pg, uniqueEans),
+        getAwinDatafeedByEans(pg, uniqueEans),
         getAliexpressByEans(pg, uniqueEans),
       ]);
       const { byEan } = buildDatafeedMaps([...awinData, ...aliexpressData]);
