@@ -25,30 +25,67 @@ const TOP_BRANDS = [
   "Garmin",
 ];
 
-const AI_CHIPS = [
+// `type: "ai"`     → query = prompt in linguaggio naturale per la chat AI.
+// `type: "search"` → query = keyword da passare alla ricerca prodotti.
+const CHIPS = [
   {
+    type: "ai",
     label: "Notebook uni",
     query:
       "Cerco un notebook per università con buona autonomia, schermo 14-15 pollici, 16GB RAM e prezzo sotto 700€.",
   },
   {
+    type: "ai",
     label: "Smartphone economico",
     query:
       "Cerco uno smartphone economico, sotto i 300€, che abbia una buona fotocamera e una buona batteria",
   },
   {
+    type: "ai",
     label: "Regalo <50€",
     query: "Mi suggerisci 3 idee regalo originali con un prezzo sotto i 50€?",
   },
   {
+    type: "ai",
     label: "Gaming",
     query:
       "Voglio fare un setup gaming completo con un buon rapporto qualità/prezzo. Quali offerte mi consigli?",
   },
   {
+    type: "ai",
     label: "Casa smart",
     query:
       "Sto cercando dispositivi smart home utili in sconto: aspirapolvere, illuminazione, assistenti vocali.",
+  },
+  {
+    type: "search",
+    label: "Smartphone",
+    query: "smartphone",
+  },
+  {
+    type: "search",
+    label: "Robot aspirapolvere",
+    query: "robot aspirapolvere",
+  },
+  {
+    type: "search",
+    label: "Friggitrice ad aria",
+    query: "friggitrice ad aria",
+  },
+  {
+    type: "search",
+    label: "Nintendo Switch",
+    query: "nintendo switch",
+  },
+  {
+    type: "search",
+    label: "Action cam",
+    query: "action cam",
+  },
+  {
+    type: "search",
+    label: "Airpods",
+    query: "airpods",
   },
 ];
 
@@ -162,9 +199,10 @@ module.exports = async function (fastify) {
     return { status: 200, data: TOP_BRANDS };
   });
 
-  // GET /api/cms/ai-chips — Suggerimenti rapidi (chip) per la chat AI.
-  fastify.get("/cms/ai-chips", async () => {
-    return { status: 200, data: AI_CHIPS };
+  // GET /api/cms/chips — Chip rapidi per home/chat. Ogni elemento ha `type`:
+  // "ai" (prompt per la chat) oppure "search" (keyword per la ricerca).
+  fastify.get("/cms/chips", async () => {
+    return { status: 200, data: CHIPS };
   });
 
   // GET /api/cms/home-chips — Chip della home (categorie/scorciatoie).

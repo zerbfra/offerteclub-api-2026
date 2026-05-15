@@ -397,16 +397,16 @@
           }
         },
         {
-          "name": "AI chips",
+          "name": "Chips",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/cms/ai-chips",
+              "raw": "{{baseUrl}}/api/cms/chips",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "cms", "ai-chips"]
+              "path": ["api", "cms", "chips"]
             },
-            "description": "Suggerimenti rapidi (chip label + query precompilata) per la chat AI."
+            "description": "Chip rapidi per home/chat. Ogni elemento ha `type`: \"ai\" (prompt per la chat AI) o \"search\" (keyword per la ricerca prodotti)."
           }
         },
         {
