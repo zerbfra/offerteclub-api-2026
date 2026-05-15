@@ -90,7 +90,8 @@ const HOME_CHIPS = [
 // La `key` è una stringa libera: puoi inventarne di nuove senza toccare il client.
 // `active`: esattamente uno a true = quello servito. Tutti a false = nessun
 // evento (header viola standard). Se più di uno è true vince il primo in ordine.
-const HOME_EVENT_ENDS_AT = "2026-05-31T23:59:59";
+const HOME_EVENT_STARTS_AT = "2001-05-31T23:59:59";
+const HOME_EVENT_ENDS_AT = "2001-05-31T23:59:59";
 
 const HOME_EVENTS = {
   "black-friday": {
@@ -105,6 +106,7 @@ const HOME_EVENTS = {
     glowTop: "rgba(255,90,31,0.35)",
     glowBottom: "rgba(255,46,92,0.28)",
     titleAccent: "#FF5A1F",
+    startsAt: HOME_EVENT_STARTS_AT,
     endsAt: HOME_EVENT_ENDS_AT,
   },
   "prime-day": {
@@ -119,6 +121,7 @@ const HOME_EVENTS = {
     glowTop: "rgba(0,212,224,0.28)",
     glowBottom: "rgba(255,153,0,0.22)",
     titleAccent: "#00D4E0",
+    startsAt: HOME_EVENT_STARTS_AT,
     endsAt: HOME_EVENT_ENDS_AT,
   },
   anniversary: {
@@ -133,6 +136,7 @@ const HOME_EVENTS = {
     glowTop: "rgba(255,217,61,0.32)",
     glowBottom: "rgba(255,61,95,0.25)",
     titleAccent: "#FFD93D",
+    startsAt: HOME_EVENT_STARTS_AT,
     endsAt: HOME_EVENT_ENDS_AT,
   },
   "summer-sales": {
@@ -147,6 +151,7 @@ const HOME_EVENTS = {
     glowTop: "rgba(39,165,253,0.34)",
     glowBottom: "rgba(254,252,3,0.22)",
     titleAccent: "#FEFC03",
+    startsAt: HOME_EVENT_STARTS_AT,
     endsAt: HOME_EVENT_ENDS_AT,
   },
 };
