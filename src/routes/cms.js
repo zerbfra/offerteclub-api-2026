@@ -85,6 +85,72 @@ const HOME_CHIPS = [
   },
 ];
 
+// ─── Eventi home (banner branded) ───────────────────────────────────────────
+// `endsAt`: ISO string o epoch ms (il client gestisce entrambi). null = no countdown.
+// La `key` è una stringa libera: puoi inventarne di nuove senza toccare il client.
+// `active`: esattamente uno a true = quello servito. Tutti a false = nessun
+// evento (header viola standard). Se più di uno è true vince il primo in ordine.
+const HOME_EVENT_ENDS_AT = "2026-05-31T23:59:59";
+
+const HOME_EVENTS = {
+  "black-friday": {
+    key: "black-friday",
+    active: true,
+    titleLines: ["Black", "Friday"],
+    subtitle: "La settimana più bollente dell'anno",
+    badgeLabel: "EVENTO IN CORSO",
+    bg: "#0A0A12",
+    accent: "#FF5A1F",
+    badgeColor: "#FFD84D",
+    glowTop: "rgba(255,90,31,0.35)",
+    glowBottom: "rgba(255,46,92,0.28)",
+    titleAccent: "#FF5A1F",
+    endsAt: HOME_EVENT_ENDS_AT,
+  },
+  "prime-day": {
+    key: "prime-day",
+    active: false,
+    titleLines: ["Prime", "Day"],
+    subtitle: "48 ore di offerte esclusive per i membri",
+    badgeLabel: "EVENTO IN CORSO",
+    bg: "#0A1A2F",
+    accent: "#0066C0",
+    badgeColor: "#00D4E0",
+    glowTop: "rgba(0,212,224,0.28)",
+    glowBottom: "rgba(255,153,0,0.22)",
+    titleAccent: "#00D4E0",
+    endsAt: HOME_EVENT_ENDS_AT,
+  },
+  anniversary: {
+    key: "anniversary",
+    active: false,
+    titleLines: ["11° Anni", "versario"],
+    subtitle: "Il compleanno di AliExpress · 11 giorni di sconti",
+    badgeLabel: "EVENTO IN CORSO",
+    bg: "#8A0A0A",
+    accent: "#E62117",
+    badgeColor: "#FFD93D",
+    glowTop: "rgba(255,217,61,0.32)",
+    glowBottom: "rgba(255,61,95,0.25)",
+    titleAccent: "#FFD93D",
+    endsAt: HOME_EVENT_ENDS_AT,
+  },
+  "summer-sales": {
+    key: "summer-sales",
+    active: false,
+    titleLines: ["Summer", "Sales"],
+    subtitle: "Sole, mare e sconti freschi tutta l'estate",
+    badgeLabel: "SALDI ESTIVI",
+    bg: "#0A3A63",
+    accent: "#27A5FD",
+    badgeColor: "#FEFC03",
+    glowTop: "rgba(39,165,253,0.34)",
+    glowBottom: "rgba(254,252,3,0.22)",
+    titleAccent: "#FEFC03",
+    endsAt: HOME_EVENT_ENDS_AT,
+  },
+};
+
 module.exports = async function (fastify) {
   // GET /api/cms/top-brands — Lista dei brand in evidenza per la home/discovery.
   fastify.get("/cms/top-brands", async () => {
@@ -101,5 +167,16 @@ module.exports = async function (fastify) {
   // ancorare in testa lato client.
   fastify.get("/cms/home-chips", async () => {
     return { status: 200, data: HOME_CHIPS };
+  });
+
+  // GET /api/cms/home-event — Evento home attivo (banner branded) o nessuno.
+  // Per cambiare evento: mettere `active: true` sull'evento voluto in
+  // HOME_EVENTS (e false sugli altri). Tutti false → active:false.
+  fastify.get("/cms/home-event", async () => {
+    const theme = Object.values(HOME_EVENTS).find((e) => e.active) || null;
+    if (!theme) {
+      return { status: 200, active: false, data: null };
+    }
+    return { status: 200, active: true, data: theme };
   });
 };

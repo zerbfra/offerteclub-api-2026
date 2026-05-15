@@ -421,6 +421,19 @@
             },
             "description": "Chip della home (categorie/scorciatoie). Array ordinato; `pinned: true` indica i chip da ancorare in testa."
           }
+        },
+        {
+          "name": "Home event",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/home-event",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "home-event"]
+            },
+            "description": "Evento home attivo (banner branded) o nessuno. `active:false`/`data:null` quando nessun evento è in corso."
+          }
         }
       ]
     }
