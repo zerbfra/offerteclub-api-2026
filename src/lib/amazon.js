@@ -8,6 +8,7 @@ const RESOURCES = [
   "itemInfo.title",
   "itemInfo.features",
   "itemInfo.externalIds",
+  "browseNodeInfo.browseNodes",
   "offersV2.listings.price",
   "offersV2.listings.availability",
   "offersV2.listings.condition",
