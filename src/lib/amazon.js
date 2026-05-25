@@ -8,6 +8,7 @@ const RESOURCES = [
   "itemInfo.title",
   "itemInfo.features",
   "itemInfo.externalIds",
+  "browseNodeInfo.browseNodes",
   "offersV2.listings.price",
   "offersV2.listings.availability",
   "offersV2.listings.condition",
@@ -44,7 +45,7 @@ async function searchItems(api, options) {
   // Campi obbligatori
   req.partnerTag = partnerTag;
   req.keywords = keywords;
-  req.searchIndex = searchIndex;
+  req.searchIndex = searchIndex || "All";
   req.itemCount = itemCount;
   req.resources = resources;
 

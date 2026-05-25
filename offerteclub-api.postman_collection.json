@@ -1,0 +1,464 @@
+{
+  "info": {
+    "name": "offerteclub-api-2026",
+    "description": "Collection per il gateway HTTP Fastify (Amazon, datafeeds, telegram stats, chat, offerte top, moderation, push notifications).\n\nVariabili:\n- `baseUrl`: host del backend (default http://localhost:3000)\n- `pushAdminToken`: bearer per /api/push/test\n- `sessionId`: id sessione per /api/chat\n- `channel`: nome canale telegram (es. offertetech)\n- `uid`: uid Firebase per push test\n\nIMPORTANT: aggiornare quando si aggiungono/modificano route in src/routes/.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "pushAdminToken", "value": "", "type": "string" },
+    { "key": "sessionId", "value": "test-session-1", "type": "string" },
+    { "key": "channel", "value": "offertetech", "type": "string" },
+    { "key": "uid", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Amazon",
+      "item": [
+        {
+          "name": "Lookup by ASINs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-store",
+                "value": "it",
+                "description": "Override store (default da DEFAULT_STORE env). Header alternativo: country-code."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/amazon/lookup/B0DGHYDZSQ,B08L5VG843",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "amazon", "lookup", "B0DGHYDZSQ,B08L5VG843"]
+            },
+            "description": "Recupera dettagli prodotto per uno o più ASIN separati da virgola. Path wildcard `/api/amazon/lookup/*`."
+          }
+        },
+        {
+          "name": "Search by keyword",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-store", "value": "it" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/amazon/search/laptop?sortBy=Relevance&page=1&minPrice=&maxPrice=&brand=&searchIndex=&category=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "amazon", "search", "laptop"],
+              "query": [
+                { "key": "sortBy", "value": "Relevance", "description": "Es. Relevance, Price:HighToLow, Price:LowToHigh, NewestArrivals" },
+                { "key": "page", "value": "1" },
+                { "key": "minPrice", "value": "" },
+                { "key": "maxPrice", "value": "" },
+                { "key": "brand", "value": "" },
+                { "key": "searchIndex", "value": "" },
+                { "key": "category", "value": "", "description": "BrowseNodeId Amazon" }
+              ]
+            },
+            "description": "Ricerca prodotti per keyword con filtri opzionali (prezzo, brand, categoria, searchIndex), ordinamento e paginazione."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Datafeeds",
+      "item": [
+        {
+          "name": "By EANs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/datafeeds/ean/8001505005707,8001505005714",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "datafeeds", "ean", "8001505005707,8001505005714"]
+            },
+            "description": "Recupera prodotti dai datafeed Awin + Aliexpress per uno o più EAN separati da virgola."
+          }
+        },
+        {
+          "name": "Awin search by param key/value (partial)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/datafeeds/awin/search?field=product_name&q=JBL Go&store=&limit=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "datafeeds", "awin", "search"],
+              "query": [
+                { "key": "field", "value": "product_name", "description": "Chiave nel payload su cui cercare" },
+                { "key": "q", "value": "JBL Go", "description": "Testo da cercare (multi-parola, case-insensitive)" },
+                { "key": "store", "value": "", "description": "Filtra per store (opzionale, es. amazon, aliexpress)" },
+                { "key": "limit", "value": "", "description": "Max risultati (opzionale, intero > 0)" }
+              ]
+            },
+            "description": "Ricerca parziale case-insensitive su un campo del payload awin. `field` e `q` obbligatori; più parole lunghe → match per parola in AND, ordine indifferente; se una parola è < 3 caratteri (es. 'iphone 17') la query è trattata come stringa contigua. `store` e `limit` opzionali."
+          }
+        },
+        {
+          "name": "Amazon deals search by param key/value",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/datafeeds/amazon-deals/search?field=title&q=benetton uomo&limit=&order=&browseNode=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "datafeeds", "amazon-deals", "search"],
+              "query": [
+                { "key": "field", "value": "title", "description": "Colonna su cui filtrare (whitelist: dealID, asin, dealTitle, title, itemPrice, ...)" },
+                { "key": "q", "value": "benetton uomo", "description": "Testo da cercare (multi-parola, case-insensitive). Parola < 3 char (es. 'iphone 17') → match contiguo" },
+                { "key": "limit", "value": "", "description": "Max risultati (opzionale, intero > 0)" },
+                { "key": "order", "value": "", "description": "Ordinamento: 'dealPrice' = prezzo decrescente; vuoto/altro = attinenza (default)" },
+                { "key": "browseNode", "value": "", "description": "Filtro categoria browseNodeId1: uno o più id separati da virgola (es. 460078031,5715226031). Opzionale" }
+              ]
+            },
+            "description": "Deals Amazon dalla view arricchita `amazon_deals_enriched` (deal + info all_feeds_standard via asin): ricerca multi-parola `colonna::text ILIKE`. `field` e `q` obbligatori, `limit`/`order`/`browseNode` opzionali; più parole lunghe → match per parola in AND (ordine indifferente), se una parola è < 3 caratteri (es. 'iphone 17') la query è trattata come stringa contigua. `order=dealPrice` ordina per prezzo decrescente (NULLS LAST), altrimenti per attinenza word_similarity (default). `browseNode`: uno o più id (virgola) → filtro IN su browseNodeId1; valori non interi ignorati. `field` accetta sia le colonne del deal sia i campi di all_feeds_standard coi loro nomi originali (es. title, itemPrice), che escono sotto `standard`. Ritorna solo i deal attivi ora (now tra dealStartTime e dealEndTime; deal con date NULL esclusi)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Telegram stats",
+      "item": [
+        {
+          "name": "Stats by channel (latest N)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/telegram/stats/{{channel}}?limit=100&sortBy=date&full=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "telegram", "stats", "{{channel}}"],
+              "query": [
+                { "key": "limit", "value": "100", "description": "1-1000 (default 100)" },
+                { "key": "sortBy", "value": "date", "description": "date | views | forwards | reactions" },
+                { "key": "full", "value": "false", "description": "true|1 → arricchisce ogni post con dati Firestore" }
+              ]
+            },
+            "description": "Ultimi N post di un canale Telegram."
+          }
+        },
+        {
+          "name": "Stats by channel (last N hours)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/telegram/stats/{{channel}}?hours=24&limit=100&sortBy=date",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "telegram", "stats", "{{channel}}"],
+              "query": [
+                { "key": "hours", "value": "24", "description": "1..8760, combinabile con limit" },
+                { "key": "limit", "value": "100" },
+                { "key": "sortBy", "value": "date" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Stats by channel (since date)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/telegram/stats/{{channel}}?date=2026-05-01&sortBy=date",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "telegram", "stats", "{{channel}}"],
+              "query": [
+                { "key": "date", "value": "2026-05-01", "description": "YYYY-MM-DD. Quando presente, `limit` viene ignorato." },
+                { "key": "sortBy", "value": "date" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Send message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"question\": \"Cerco uno smartphone Android sotto i 300 euro\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat"]
+            },
+            "description": "Invia una domanda nella sessione chat. Risposta: { outcome: 'results'|'no_results'|'not_relevant', assistantText, products?, message? }."
+          }
+        },
+        {
+          "name": "Reset session",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/chat/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "chat", "{{sessionId}}"]
+            },
+            "description": "Cancella lo storico Redis della sessione chat."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Offers",
+      "item": [
+        {
+          "name": "Top offers (today)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/top?period=today&category=all&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "offers", "top"],
+              "query": [
+                { "key": "period", "value": "today", "description": "today | yesterday | 2days | week" },
+                { "key": "category", "value": "all", "description": "all | tech | casa | ..." },
+                { "key": "limit", "value": "20", "description": "1-100 (default 20)" }
+              ]
+            },
+            "description": "Top offerte aggregate dai click Yourls + dati Telegram da Firestore."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Moderate",
+      "item": [
+        {
+          "name": "Moderate text",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"esempio di testo da moderare\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/moderate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "moderate"]
+            },
+            "description": "Wrapper su OpenAI moderation. Risposta: { flagged: boolean }. Max 2000 caratteri."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Push",
+      "description": "Test push fittizie all'uid indicato. Tipi supportati (campo `type`): `price_drop`, `discount_threshold`, `favorite_hit`, `community_hot`, `most_liked`, `web_landing`, `generic`. Default: `discount_threshold`. Auth: Bearer PUSH_ADMIN_TOKEN.",
+      "item": [
+        {
+          "name": "price_drop (minimo storico)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"type\": \"price_drop\",\n  \"title\": \"Minimo storico!\",\n  \"body\": \"Gli AirPods Pro che segui sono ora a 199€ — il prezzo più basso di sempre\",\n  \"dealId\": \"test-price-drop\",\n  \"image\": \"https://m.media-amazon.com/images/I/61VHVpa4wvL._AC_SL1500_.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "test"]
+            },
+            "description": "Minimo storico (verde/freccia giù in app). `image` viene passato sia nel `data` Expo sia nel mirror Firestore."
+          }
+        },
+        {
+          "name": "discount_threshold (soglia sconto)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"type\": \"discount_threshold\",\n  \"title\": \"Sconto del 40%\",\n  \"body\": \"Aspirapolvere Dyson V12 a 359€ — supera la tua soglia di sconto\",\n  \"dealId\": \"test-discount\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "test"]
+            },
+            "description": "Soglia sconto raggiunta (viola/check). Tipo di default se `type` omesso."
+          }
+        },
+        {
+          "name": "favorite_hit (preferito ripubblicato)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"type\": \"favorite_hit\",\n  \"title\": \"Un tuo preferito è in offerta\",\n  \"body\": \"PlayStation 5 Slim Digital — torniamo a segnalarla a 399€\",\n  \"dealId\": \"test-favorite\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "test"]
+            },
+            "description": "Un preferito dell'utente è stato ripubblicato (rosa/cuore)."
+          }
+        },
+        {
+          "name": "community_hot (più commentate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"type\": \"community_hot\",\n  \"title\": \"Tra le più commentate oggi\",\n  \"body\": \"23 utenti stanno parlando di questa offerta — Lego Star Wars 75355 a 59,90€\",\n  \"dealId\": \"test-community\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "test"]
+            },
+            "description": "Offerta tra le più commentate (giallo/chat)."
+          }
+        },
+        {
+          "name": "most_liked (più amate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"type\": \"most_liked\",\n  \"title\": \"Tra le più amate dalla community\",\n  \"body\": \"127 utenti hanno salvato questa offerta — Kindle Paperwhite a 119€\",\n  \"dealId\": \"test-liked\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "test"]
+            },
+            "description": "Offerta tra le più amate (blu/sparkle)."
+          }
+        },
+        {
+          "name": "web_landing (modale web)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"type\": \"web_landing\",\n  \"title\": \"Black Friday speciale\",\n  \"body\": \"Scopri la selezione delle migliori offerte di oggi\",\n  \"webUrl\": \"https://offerte.club\",\n  \"webTitle\": \"Black Friday\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "test"]
+            },
+            "description": "Apre una modale web in app. `webUrl` è obbligatorio; `webTitle` opzionale (etichetta della modale). `dealId` non viene usato per questo tipo."
+          }
+        },
+        {
+          "name": "generic (notifica generica)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"type\": \"generic\",\n  \"title\": \"Aggiornamento app\",\n  \"body\": \"Abbiamo migliorato la ricerca: prova ora i nuovi filtri\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "test"]
+            },
+            "description": "Notifica senza azioni specifiche: solo title + body. Nessun campo extra obbligatorio."
+          }
+        }
+      ]
+    },
+    {
+      "name": "CMS",
+      "item": [
+        {
+          "name": "Top brands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/top-brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "top-brands"]
+            },
+            "description": "Lista dei brand in evidenza per la home/discovery. Per ora hardcoded lato API, in futuro arriverà da un CMS esterno."
+          }
+        },
+        {
+          "name": "Chips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/chips",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "chips"]
+            },
+            "description": "Chip rapidi per home/chat. Ogni elemento ha `type`: \"ai\" (prompt per la chat AI) o \"search\" (keyword per la ricerca prodotti)."
+          }
+        },
+        {
+          "name": "Home chips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/home-chips",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "home-chips"]
+            },
+            "description": "Chip della home (categorie/scorciatoie). Array ordinato; `pinned: true` indica i chip da ancorare in testa."
+          }
+        },
+        {
+          "name": "Home event",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/home-event",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "home-event"]
+            },
+            "description": "Evento home attivo (banner branded) o nessuno. `active:false`/`data:null` quando nessun evento è in corso."
+          }
+        }
+      ]
+    }
+  ]
+}

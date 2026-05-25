@@ -18,14 +18,41 @@ function parseProductIds(value) {
     .filter(Boolean);
 }
 
+/** Spezza una query di ricerca in token (parole) normalizzati. */
+const splitTerms = (value) => String(value).trim().split(/\s+/).filter(Boolean);
+
+// Sotto i 3 caratteri un token da solo non è selettivo (e per i campi
+// indicizzati non userebbe l'indice trigram).
+const SHORT_TERM_LEN = 3;
+
+/** Operandi ILIKE per la ricerca (ognuno va in AND). Regole:
+ *  - una sola parola → la parola stessa;
+ *  - più parole, una "corta" (< 3 char, es. "iphone 17") → UNICA stringa
+ *    contigua "iphone 17" (il token corto da solo non è selettivo, va
+ *    mantenuto nel contesto);
+ *  - più parole tutte lunghe (es. "iphone air") → un match per parola, in
+ *    AND, ordine indifferente.
+ * Unica fonte della tokenizzazione: usata dal service datafeeds. */
+const searchTerms = (value) => {
+  const tokens = splitTerms(value);
+  if (tokens.length <= 1) return tokens;
+  if (tokens.some((t) => t.length < SHORT_TERM_LEN)) return [tokens.join(" ")];
+  return tokens;
+};
+
 /** Costruisce l’oggetto filtri di ricerca a partire dalla query string. */
+// Stringhe vuote dalla query (`?brand=`) le tratta come assenti, così non
+// finiscono nel body verso Amazon che rifiuta i campi non vuoti (es.
+// `searchIndex: ""` → 400 ValidationException su regex `.*\S.*`).
+const blank = (v) => (typeof v === "string" && v.trim() === "" ? undefined : v);
+
 function buildSearchFilter(query) {
   return {
-    browseNodeId: query.category,
-    maxPrice: query.maxPrice,
-    minPrice: query.minPrice,
-    brand: query.brand,
-    searchIndex: query.searchIndex,
+    browseNodeId: blank(query.category),
+    maxPrice: blank(query.maxPrice),
+    minPrice: blank(query.minPrice),
+    brand: blank(query.brand),
+    searchIndex: blank(query.searchIndex),
   };
 }
 
@@ -97,6 +124,8 @@ module.exports = {
   getAtPath,
   getStore,
   parseProductIds,
+  splitTerms,
+  searchTerms,
   buildSearchFilter,
   truncateText,
   withRetry,

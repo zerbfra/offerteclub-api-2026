@@ -26,11 +26,7 @@ const formatRow = (row) => ({
   last_updated: row.last_updated,
 });
 
-const getPostStatsByChannel = async (
-  mysql,
-  channel,
-  { limit, date, hours, sortBy } = {},
-) => {
+const getPostStatsByChannel = async (mysql, channel, { limit, date, hours, sortBy } = {}) => {
   const normalized = normalizeChannel(channel);
   if (!normalized) {
     const err = new Error("Channel is required");
@@ -52,9 +48,7 @@ const getPostStatsByChannel = async (
 
   const sortKey = sortBy ? SORT_BY_MAP[sortBy] : "post_date";
   if (sortBy && !sortKey) {
-    const err = new Error(
-      `Invalid sortBy, allowed: ${Object.keys(SORT_BY_MAP).join(", ")}`,
-    );
+    const err = new Error(`Invalid sortBy, allowed: ${Object.keys(SORT_BY_MAP).join(", ")}`);
     err.statusCode = 400;
     throw err;
   }
@@ -94,14 +88,41 @@ const enrichStatsWithFirestore = async (firestore, channel, rows) => {
     snapshot.docs.forEach((doc) => {
       const data = doc.data();
       const msgId = data.channel?.telegramMessageId;
-      if (msgId != null) postsByMsgId[msgId] = data;
+      if (msgId != null) postsByMsgId[msgId] = { ...data, docId: doc.id };
     });
   }
 
-  return rows.map((row) => {
-    const post = postsByMsgId[row.message_id];
-    return post ? { ...row, post } : row;
-  });
+  // Allowlist: solo i campi che il client usa davvero. Tutto il resto
+  // (message_id, post_date, reactions_total, last_updated, whatsapp,
+  // disableNotification, username, scheduled, channel.tag*, channel.appTag,
+  // channel.waTag, channel.telegramMessageId, ...) viene scartato.
+  // Righe MySQL senza post Firestore matchato vengono filtrate (senza docId
+  // e payload sono inutili). Dedup per `payload.asin`: la prima occorrenza
+  // nell'ordine già scelto da sortBy vince; righe senza asin non vengono
+  // deduplicate (es. offerte non Amazon).
+  const seenAsins = new Set();
+  return rows
+    .map((row) => {
+      const post = postsByMsgId[row.message_id];
+      if (!post) return null;
+      return {
+        docId: post.docId,
+        channel: { chat: post.channel?.chat || null },
+        country: post.country || null,
+        date: post.date || null,
+        payload: post.payload || null,
+        views: row.views,
+        forwards: row.forwards,
+      };
+    })
+    .filter((entry) => {
+      if (!entry) return false;
+      const asin = entry.payload?.asin;
+      if (!asin) return true;
+      if (seenAsins.has(asin)) return false;
+      seenAsins.add(asin);
+      return true;
+    });
 };
 
 const filterOutMultiPosts = async (firestore, channel, rows) => {
