@@ -67,6 +67,17 @@ const runSearchPipeline = async (index, userQuestion, options = {}) => {
     missingComparisonBrands,
     missingComparisonProductNames,
   } = searchResult;
+  if (!sort && !hasComparison) {
+    results.hits.sort((a, b) => {
+      const va = a.ag_review_voto ?? null;
+      const vb = b.ag_review_voto ?? null;
+      if (va === null && vb === null) return 0;
+      if (va === null) return 1;
+      if (vb === null) return -1;
+      return vb - va;
+    });
+  }
+
   results.hits = results.hits.slice(0, limitDisplay);
 
   if (enrichDeps) {

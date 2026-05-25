@@ -107,16 +107,17 @@ const buildSearchOptions = (
   parsedQuery,
   { embedderName, limit = 5, sort, filters: filtersOverride } = {},
 ) => {
-  const sortArray = sort || getSortFromParsedQuery(parsedQuery);
-  const searchOptions = {
-    hybrid: {
-      semanticRatio: getSemanticRatio(parsedQuery),
-      embedder: embedderName,
-    },
-    limit,
-  };
+  const sortArray = sort !== undefined ? sort : getSortFromParsedQuery(parsedQuery);
+  const searchOptions = { limit };
+
   if (sortArray && sortArray.length > 0) {
     searchOptions.sort = sortArray;
+    searchOptions.hybrid = { semanticRatio: 0.2, embedder: embedderName };
+  } else {
+    searchOptions.hybrid = {
+      semanticRatio: getSemanticRatio(parsedQuery),
+      embedder: embedderName,
+    };
   }
 
   const effectiveFilter = filtersOverride !== undefined ? filtersOverride : parsedQuery.filters;
@@ -417,7 +418,7 @@ const searchWithFallback = async (index, parsedQuery, options = {}) => {
     comparisonBrands,
     comparisonProductNames,
   } = options;
-  const sortArray = sort || getSortFromParsedQuery(parsedQuery);
+  const sortArray = sort !== undefined ? sort : getSortFromParsedQuery(parsedQuery);
 
   if (comparisonProductNames && comparisonProductNames.length > 0) {
     return await searchComparisonProductNames(index, parsedQuery, comparisonProductNames, {
