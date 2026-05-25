@@ -177,10 +177,7 @@ const fetchPostsByPayloadUrls = async (firestore, shortUrls) => {
   const result = {};
   for (let i = 0; i < shortUrls.length; i += FIRESTORE_IN_MAX) {
     const chunk = shortUrls.slice(i, i + FIRESTORE_IN_MAX);
-    const snapshot = await firestore
-      .collection("posts")
-      .where("payload.url", "in", chunk)
-      .get();
+    const snapshot = await firestore.collection("posts").where("payload.url", "in", chunk).get();
     snapshot.docs.forEach((doc) => {
       const data = doc.data();
       const url = data.payload?.url;
@@ -239,9 +236,7 @@ const formatOffer = (entry, index) => ({
  */
 const getTopOffers = async (firestore, { period, category, limit } = {}, log) => {
   if (period && !VALID_PERIODS.has(period)) {
-    const err = new Error(
-      `Invalid period, allowed: ${[...VALID_PERIODS].join(", ")}`,
-    );
+    const err = new Error(`Invalid period, allowed: ${[...VALID_PERIODS].join(", ")}`);
     err.statusCode = 400;
     throw err;
   }
