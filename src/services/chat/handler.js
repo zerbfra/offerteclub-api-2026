@@ -107,7 +107,8 @@ const handlePipelineResult = async (redis, userId, userQuestion, searchResult, o
     missingComparisonBrands,
     missingComparisonProductNames,
     promptPath,
-    previousResponseId: session.formatResponseId,
+    previousResponseId: null,
+    previousContext: session.lastParsedQuery ?? null,
     onUsage,
   };
 

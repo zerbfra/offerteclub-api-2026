@@ -52,8 +52,13 @@ const buildUserContent = ({
   results,
   missingComparisonBrands,
   missingComparisonProductNames,
+  previousContext,
 }) => {
   const productsInfo = buildProductsPayload(results?.hits ?? []);
+
+  const previousContextLine = previousContext?.searchQuery
+    ? `Contesto conversazione: ricerca precedente "${previousContext.searchQuery}"${previousContext.filters ? ` con filtri: ${previousContext.filters}` : ""}.\n    `
+    : "";
 
   const missingBrandsNote =
     missingComparisonBrands && missingComparisonBrands.length > 0
@@ -68,7 +73,7 @@ const buildUserContent = ({
        Spiega all'utente che queste varianti non sono al momento disponibili e proponi i prodotti mostrati come alternative.`
       : "";
 
-  return `Domanda utente: "${userQuestion}"
+  return `${previousContextLine}Domanda utente: "${userQuestion}"
     Filtri applicati: ${parsedQuery?.filters ?? "nessuno"}
     Query di ricerca: "${parsedQuery?.searchQuery ?? ""}"
     Prodotti trovati (${results?.hits?.length ?? 0}):
@@ -87,6 +92,7 @@ const formatAssistantResponse = async (openai, options = {}) => {
     promptPath = DEFAULT_PROMPT_RESPONSE_PATH,
     onUsage,
     previousResponseId,
+    previousContext,
   } = options;
 
   const instructions = loadPrompt(promptPath);
@@ -96,6 +102,7 @@ const formatAssistantResponse = async (openai, options = {}) => {
     results,
     missingComparisonBrands,
     missingComparisonProductNames,
+    previousContext,
   });
 
   try {
@@ -151,6 +158,7 @@ const formatAssistantResponseStream = async (openai, options = {}, onChunk) => {
     promptPath = DEFAULT_PROMPT_RESPONSE_PATH,
     onUsage,
     previousResponseId,
+    previousContext,
   } = options;
 
   const instructions = loadPrompt(promptPath);
@@ -160,6 +168,7 @@ const formatAssistantResponseStream = async (openai, options = {}, onChunk) => {
     results,
     missingComparisonBrands,
     missingComparisonProductNames,
+    previousContext,
   });
 
   try {

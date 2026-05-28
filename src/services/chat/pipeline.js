@@ -1,4 +1,4 @@
-const { searchWithFallback, getSortFromParsedQuery, hasSpecificBrand } = require("./query");
+const { searchWithFallback, getSortFromParsedQuery, hasSpecificBrand, diversifyByBrand } = require("./query");
 const config = require("../../config");
 const { enrichProducts } = require("./api_gateway/enrichment");
 
@@ -76,6 +76,9 @@ const runSearchPipeline = async (index, userQuestion, options = {}) => {
       if (vb === null) return -1;
       return vb - va;
     });
+    if (willDiversify) {
+      results.hits = diversifyByBrand(results.hits, 1);
+    }
   }
 
   results.hits = results.hits.slice(0, limitDisplay);
