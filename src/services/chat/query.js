@@ -439,8 +439,25 @@ const searchWithFallback = async (index, parsedQuery, options = {}) => {
   const hasBrand = hasSpecificBrand(parsedQuery.filters);
   const shouldDiversify = diversifyBrands && !hasBrand;
 
+  const isSearchDebug = process.env.SEARCH_DEBUG === "true";
+
+  const logSearch = (label, query, opts, hits) => {
+    if (!isSearchDebug) return;
+    const votiConEan = (hits || [])
+      .filter((h) => h.ag_review_voto !== null && h.ag_review_voto !== undefined)
+      .sort((a, b) => b.ag_review_voto - a.ag_review_voto)
+      .map((h) => `${h.ean ?? "?"}:${h.ag_review_voto}`);
+    console.log(`\n[SEARCH_DEBUG] ${label}`);
+    console.log(`  query:   "${query}"`);
+    console.log(`  filter:  ${opts.filter ?? "nessuno"}`);
+    console.log(`  sort:    ${JSON.stringify(opts.sort ?? null)}`);
+    console.log(`  hybrid:  ${JSON.stringify(opts.hybrid ?? null)}`);
+    console.log(`  hits:    ${hits?.length ?? 0} | ag_review_voto ordinati (${votiConEan.length}): [${votiConEan.join(", ") || "nessuno"}]`);
+  };
+
   const searchOptions1 = buildSearchOptions(parsedQuery, { embedderName, limit, sort: sortArray });
   let results = await index.search(parsedQuery.searchQuery, searchOptions1);
+  logSearch("fallback=0 (tutti i filtri)", parsedQuery.searchQuery, searchOptions1, results.hits);
 
   if (results.hits.length > 0) {
     if (shouldDiversify) {
@@ -458,6 +475,7 @@ const searchWithFallback = async (index, parsedQuery, options = {}) => {
       filters: essentialFilters,
     });
     results = await index.search(parsedQuery.searchQuery, searchOptions2);
+    logSearch("fallback=1 (filtri essenziali)", parsedQuery.searchQuery, searchOptions2, results.hits);
 
     if (results.hits.length > 0) {
       if (shouldDiversify) {
@@ -474,6 +492,7 @@ const searchWithFallback = async (index, parsedQuery, options = {}) => {
     filters: null,
   });
   results = await index.search(parsedQuery.searchQuery, searchOptions3);
+  logSearch("fallback=2 (senza filtri)", parsedQuery.searchQuery, searchOptions3, results.hits);
 
   if (results.hits.length > 0) {
     if (shouldDiversify) {
@@ -484,6 +503,7 @@ const searchWithFallback = async (index, parsedQuery, options = {}) => {
 
   const simplifiedQuery = extractMainKeywords(parsedQuery.searchQuery);
   results = await index.search(simplifiedQuery, searchOptions3);
+  logSearch("fallback=3 (query semplificata)", simplifiedQuery, searchOptions3, results.hits);
 
   if (results.hits.length > 0) {
     if (shouldDiversify) {
