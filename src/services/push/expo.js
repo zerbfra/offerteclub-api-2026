@@ -6,25 +6,41 @@ const buildExpoClient = (config) =>
     useFcmV1: true,
   });
 
+// Punteggio temporale di un device doc: ms del lastSeenAt (fallback createdAt).
+// Gestisce sia i Timestamp dell'admin SDK sia i plain object {_seconds}.
+const deviceScore = (data) => {
+  const pick = (v) => {
+    if (!v) return 0;
+    if (typeof v.toMillis === "function") return v.toMillis();
+    if (typeof v._seconds === "number") return v._seconds * 1000;
+    if (typeof v.seconds === "number") return v.seconds * 1000;
+    return 0;
+  };
+  return Math.max(pick(data.lastSeenAt), pick(data.createdAt));
+};
+
 /**
  * Recupera tutti i device token validi per un uid.
  * Ritorna array di { token, deviceId, uid }.
  */
 const getUserDeviceTokens = async (firestore, uid) => {
   const snap = await firestore.collection("users").doc(uid).collection("devices").get();
-  const byToken = new Map();
+  const byToken = new Map(); // token -> { entry, score }
   snap.forEach((doc) => {
     const data = doc.data();
-    if (data && typeof data.pushToken === "string" && Expo.isExpoPushToken(data.pushToken)) {
-      // Dedup per pushToken: se due doc puntano allo stesso token (es. dopo
-      // un re-install che ha lasciato un doc zombie), evita di spedire la
-      // stessa push due volte. Il primo doc visto vince.
-      if (!byToken.has(data.pushToken)) {
-        byToken.set(data.pushToken, { token: data.pushToken, deviceId: doc.id, uid });
-      }
+    if (!data || typeof data.pushToken !== "string" || !Expo.isExpoPushToken(data.pushToken)) return;
+    // Dedup per pushToken: l'app crea un device doc nuovo ad ogni
+    // registrazione/re-install senza cancellare i vecchi, quindi lo stesso
+    // token può comparire più volte. Teniamo la registrazione PIÙ RECENTE
+    // (lastSeenAt) così inviamo una sola push e ai receipts associamo il
+    // device doc giusto da pulire in caso di DeviceNotRegistered.
+    const score = deviceScore(data);
+    const prev = byToken.get(data.pushToken);
+    if (!prev || score > prev.score) {
+      byToken.set(data.pushToken, { score, entry: { token: data.pushToken, deviceId: doc.id, uid } });
     }
   });
-  return [...byToken.values()];
+  return [...byToken.values()].map((v) => v.entry);
 };
 
 /**

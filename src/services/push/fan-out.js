@@ -25,13 +25,17 @@ const isHistoricMin = (post) => {
  * filtriamo `> 0` lato server.
  *
  * Filtro `channels` (post-filter in memoria per non escludere i doc legacy
- * senza il campo, che `array-contains` taglierebbe fuori):
+ * senza il campo, che `array-contains` taglierebbe fuori). La semantica voluta
+ * è `channels AND minDiscount`:
  *   - channels undefined/non-array  → include (legacy = tutte le categorie)
  *   - channels array vuoto          → escludi (opt-out esplicito)
  *   - channels include postChannel  → includi
  *   - altrimenti                    → escludi
- * Se postChannel è null (canale non mappato), salta il filtro per evitare
- * di azzerare le push su canali nuovi non ancora aggiunti a parseChannel.
+ * Se postChannel è null (canale non mappato o `post.channel.chat` assente),
+ * NON possiamo confermare che il post appartenga a una categoria scelta:
+ * per gli utenti con `channels` esplicito escludiamo (altrimenti basterebbe
+ * matchare minDiscount per ricevere push di qualsiasi categoria). I legacy
+ * senza `channels` continuano a ricevere tutto.
  */
 const recipientsByDiscountThreshold = async (firestore, discount, postChannel) => {
   if (!Number.isFinite(discount) || discount <= 0) return [];
@@ -45,9 +49,11 @@ const recipientsByDiscountThreshold = async (firestore, discount, postChannel) =
     const prefs = doc.data()?.notifPrefs;
     const min = prefs?.minDiscount;
     if (typeof min !== "number" || min <= 0) return;
-    if (postChannel) {
-      const channels = prefs?.channels;
-      if (Array.isArray(channels) && !channels.includes(postChannel)) return;
+    const channels = prefs?.channels;
+    if (Array.isArray(channels)) {
+      // Utente con preferenza esplicita: includi solo se il canale del post
+      // è mappabile ed è tra le categorie scelte.
+      if (!postChannel || !channels.includes(postChannel)) return;
     }
     uids.push(doc.id);
   });
