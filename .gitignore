@@ -1,4 +1,5 @@
 node_modules/
+tmp/
 .env
 firebase-credentials.json
 dist/
