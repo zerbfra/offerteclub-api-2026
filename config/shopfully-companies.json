@@ -1,0 +1,11 @@
+{
+  "country": "it",
+  "targets": [
+    { "slug": "mediaworld", "title": "Media World" },
+    { "slug": "unieuro", "title": "Unieuro" },
+    { "slug": "comet", "title": "Comet" },
+    { "slug": "esselunga", "title": "Esselunga" },
+    { "slug": "mddiscount", "title": "MD Discount" },
+    { "slug": "eurobrico", "title": "Eurobrico" }
+  ]
+}

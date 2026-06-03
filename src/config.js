@@ -68,6 +68,11 @@ const config = {
     url: process.env.DO_FUNCTIONS_URL,
     token: process.env.DO_FUNCTIONS_TOKEN,
   },
+  offerista: {
+    baseUrl: process.env.OFFERISTA_BASE_URL || "https://delivery.offerista.com",
+    key: process.env.OFFERISTA_KEY,
+    secret: process.env.OFFERISTA_SECRET,
+  },
   push: {
     adminToken: process.env.PUSH_ADMIN_TOKEN,
     expoAccessToken: process.env.EXPO_ACCESS_TOKEN || undefined,

@@ -1,0 +1,2059 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?enunciate-assumed-base-uri https://delivery.offerista.com/?>
+<wadl:application xmlns:wadl="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <wadl:doc xmlns:enunciate="http://enunciate.webcohesion.com/" enunciate:generatedBy="Enunciate-2.0"/>
+  
+  <wadl:grammars>
+    <wadl:include href="ns0.xsd"/>
+  </wadl:grammars>
+
+  <wadl:resources base="https://delivery.offerista.com/">
+
+    <wadl:resource path="../cities">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple cities that matches several
+parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="country_code" style="query">
+            <wadl:doc><![CDATA[A array of country codes to be included in the result. (array: yes; type: string; structure:
+country_code=&lt;string&gt;; example: country_code=DE)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="county_id" style="query">
+            <wadl:doc><![CDATA[A array of county IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: county_id=&lt;long&gt;; example: county_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="facet" style="query">
+            <wadl:doc><![CDATA[The facets to be included in the result. (array: yes; type:
+enum(county),integer,integer,integer [offset: minimum 0; count: between 0 and
+1000;min-count: minimum 1]; structure:
+facet=&lt;faceting&gt;,[&lt;offset&gt;],[&lt;count&gt;][,&lt;min-count&gt;]; example:
+facet=county,0,10,1; default-values: offset=0,count=10,min-count=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. The radius is ignored by this endpoint. (array: no; type:
+float,float,float [latitude: between -90 and 90; longitude: between -180 and 180; radius: between 0
+and 1000]; structure: geo=&lt;latitude&gt;,&lt;longitude&gt;[,&lt;radius&gt;]; example:
+geo=52.52,13.04,15.9) OR (array: no; type=string,float [ip-address: valid ipv4 address; radius:
+between 0 and 1000]; structure: geo=&lt;IPv4&gt;[,&lt;radius&gt;]; example: geo=192.168.0.10,15.8).
+The purpose of geo here is not to filter zipcodes but to list down the distance of zipcodes from the provided geo coordinates.]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id" style="query">
+            <wadl:doc><![CDATA[A array of city IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: id=&lt;long&gt;; example: id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of city IDs to be excluded from the result. (array: yes; type: long [value: minimum 1];
+structure: id_exclude=&lt;long&gt;; example: id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. Both parts are optional. (array: no; type: integer,integer
+[offset: minimum 0; count: between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;];
+example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="random_seed" style="query">
+            <wadl:doc><![CDATA[The random seed for random sorting. (array: no; type: long [value: minimum 0]; structure:
+&lt;integer&gt;; example: random_seed=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[A array of sorting options. (array: yes; type: enum(title,distance,relevance,random),enum(asc,desc); structure:
+sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=distance,desc; default sort-order: title->asc,
+distance->asc, relevance->desc, random->asc)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="title" style="query">
+            <wadl:doc><![CDATA[A array of ORed keywords to match a certain city's title. (array: yes; type: string [length: maximum
+250]; structure: title=&lt;string&gt;; example: title=Dres*; search-features: wildcard-search (*))]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="unique_title" style="query">
+            <wadl:doc><![CDATA[A list of ORed keywords to match a certain city's unique-title. (array: yes; type: string
+[length: maximum 250]; structure: unique_title=&lt;string&gt; example: unique_title=dres*;
+search-features: wildcard-search (*))]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="zipcode_id" style="query">
+            <wadl:doc><![CDATA[A array of zipcode IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: zipcode_id=&lt;long&gt;; example: zipcode_id=1)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching city-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="city_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../companies">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple companies that matches several
+parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="facet" style="query">
+            <wadl:doc><![CDATA[The facets to be included in the result. (array: yes; type: enum(industry),integer,integer,integer
+[offset: minimum 0; count: between 0 and 1000;min-count: minimum 1]; structure:
+facet=&lt;faceting&gt;,[&lt;offset&gt;],[&lt;count&gt;][,&lt;min-count&gt;]; example:
+facet=industry,0,10,1; default-values: offset=0,count=10,min-count=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address and optionally a radius. (array: no; type:
+float,float,float [latitude: between -90 and 90; longitude: between -180 and 180; radius: between 0
+and 1000]; structure: geo=&lt;latitude&gt;,&lt;longitude&gt;[,&lt;radius&gt;]; example:
+geo=52.52,13.04,15.9) OR (array: no; type=string,float [ip-address: valid ipv4 address; radius:
+between 0 and 1000]; structure: geo=&lt;IPv4&gt;[,&lt;radius&gt;]; example: geo=192.168.0.10,15.8) If
+an unlimited radius is desired the value of the radius could also be "*".]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_logo" style="query">
+            <wadl:doc><![CDATA[A filter to request companies with or without logo. (array: no; type: boolean; structure:
+has_logo=&lt;boolean&gt;; example: has_logo=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_offers" style="query">
+            <wadl:doc><![CDATA[A filter to request companies with or without offers. (array: no; type: boolean; structure:
+has_offers=&lt;boolean&gt;; example: has_offers=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: id=&lt;long&gt;; example: id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be excluded from the result. (array: yes; type: long [value: minimum
+1]; structure: id_exclude=&lt;long&gt;; example: id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be included in the result. (array: yes; type: long [value: minimum
+1]; structure: industry_id=&lt;long&gt;; example: industry_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: industry_id_exclude=&lt;long&gt;; example: industry_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="random_seed" style="query">
+            <wadl:doc><![CDATA[The random seed for random sorting and favoring. (array: no; type: long [value: minimum 0];
+structure: &lt;integer&gt;; example: random_seed=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="search" style="query">
+            <wadl:doc><![CDATA[A search string to match at least one of several fields of a certain company. (array: no; type:
+string [length: maximum 250], structure: search=&lt;string&gt;; example: search=Bau;
+search-fields(weight):title(3), industry title(2), keywords(1), description(0.5))]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[The sorting options. (array: yes; type: enum(popularity,relevance,random,title),enum(asc,desc);
+structure: sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=title,asc; default sort-order:
+popularity->desc, relevance->desc, random->asc, title->asc; if the request contains the search
+parameter the default sort order is relevance,desc)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="title" style="query">
+            <wadl:doc><![CDATA[A array of ORed keywords to match a certain company's title. (array: yes; type: string [length:
+maximum 250]; structure: title=&lt;string&gt;; example: title=Bau*; search-features: wildcard-search
+(*))]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching company-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="company_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../counties">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple counties that matches several
+parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="country_code" style="query">
+            <wadl:doc><![CDATA[A array of country codes to be included in the result. (array: yes; type: string; structure:
+country_code=&lt;string&gt;; example: country_code=DE)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. The radius is ignored by this endpoint. (array: no; type:
+float,float,float [latitude: between -90 and 90; longitude: between -180 and 180; radius: between 0
+and 1000]; structure: geo=&lt;latitude&gt;,&lt;longitude&gt;[,&lt;radius&gt;]; example:
+geo=52.52,13.04,15.9) OR (array: no; type=string,float [ip-address: valid ipv4 address; radius:
+between 0 and 1000]; structure: geo=&lt;IPv4&gt;[,&lt;radius&gt;]; example: geo=192.168.0.10,15.8).
+The purpose of geo here is not to filter zipcodes but to list down the distance of zipcodes from the provided geo coordinates.]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id" style="query">
+            <wadl:doc><![CDATA[A array of county IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: id=&lt;long&gt;; example: id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of county IDs to be excluded from the result. (array: yes; type: long [value: minimum 1];
+structure: id_exclude=&lt;long&gt;; example: id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. Both parts are optional. (array: no; type: integer,integer
+[offset: minimum 0; count: between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;];
+example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[A array of sorting options. (array: yes; type: enum(title,distance,relevance),enum(asc,desc); structure:
+sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=distance,desc; default sort-order: title->asc,
+distance->asc)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="title" style="query">
+            <wadl:doc><![CDATA[A array of ORed keywords to match a certain counties title. (array: yes; type: string [length: maximum
+250]; structure: title=&lt;string&gt;; example: title=Dres*; search-features: wildcard-search (*))]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="unique_title" style="query">
+            <wadl:doc><![CDATA[A list of ORed keywords to match a certain counties unique-title. (array: yes; type: string
+[length: maximum 250]; structure: unique_title=&lt;string&gt; example: unique_title=dres*;
+search-features: wildcard-search (*))]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching county-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="county_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../industries">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple industries that matches several
+parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address and optionally a radius. (array: no; type:
+float,float,float [latitude: between -90 and 90; longitude: between -180 and 180; radius: between 0
+and 1000]; structure: geo=&lt;latitude&gt;,&lt;longitude&gt;[,&lt;radius&gt;]; example:
+geo=52.52,13.04,15.9) OR (array: no; type=string,float [ip-address: valid ipv4 address; radius:
+between 0 and 1000]; structure: geo=&lt;IPv4&gt;[,&lt;radius&gt;]; example: geo=192.168.0.10,15.8) If
+an unlimited radius is desired the value of the radius could also be "*".]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: id=&lt;long&gt;; example: id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be excluded from the result. (array: yes; type: long [value: minimum
+1]; structure: id_exclude=&lt;long&gt;; example: id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. Both parts are optional. (array: no; type: integer,integer
+[offset: minimum 0; count: between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;];
+example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="random_seed" style="query">
+            <wadl:doc><![CDATA[The random seed for random sorting. (array: no; type: long [value: minimum 0]; structure:
+&lt;integer&gt;; example: random_seed=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[The sorting options. (array: yes; type: enum(random,title),enum(asc,desc); structure:
+sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=title,asc; default sort-order: random->asc,
+title->asc)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="title" style="query">
+            <wadl:doc><![CDATA[A array of ORed keywords to match a certain industry's title. (array: yes; type: string [length:
+maximum 250]; structure: title=&lt;string&gt;; example: title=Bau*; search-features: wildcard-search
+(*))]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching industry-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="industry_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../keywords">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple keywords that matches several
+parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="id" style="query">
+            <wadl:doc><![CDATA[A array of keyword IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: id=&lt;long&gt;; example: id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="search" style="query">
+            <wadl:doc><![CDATA[A search string to match at least one of several field of a certain keyword. (array: no; type:
+string [length: maximum 250], structure: search=&lt;string&gt;; example: search=Notebook;
+search-fields(weight):title(1), plural(0.5), misspellings(0.25))]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[The sorting options. (array: yes; type: enum(title),enum(asc,desc); structure:
+sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=title,asc; default sort-order: title->asc)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="title" style="query">
+            <wadl:doc><![CDATA[A array of ORed keywords to match a certain keyword's title. (array: yes; type: string [length:
+maximum 250]; structure: title=&lt;string&gt;; example: title=Notbook~; search-features:
+wildcard-search (*), fuzzy-search (~ at the end of input string. The fuzzy search uses the
+levenshtein-distance with max two edit operations.))]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching keyword-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="keyword_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../location">
+      <wadl:method name="POST">
+        <wadl:doc><![CDATA[Method to resolve an IP-address to a geo-coordinate. You send the IP-address "application/x-www-form-urlencoded"
+encoded within the body, e.g. "ip=192.168.0.1".]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A location object with latitude and longitude.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../location">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[Method to resolve an IP-address to a geo-coordinate. The IP-address will be extracted from the X-Forwarded-For
+Header or the client IP will be used.]]></wadl:doc>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A location object with latitude and longitude.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../offers">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple offers that matches several
+parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="boost_company_id" style="query">
+            <wadl:doc><![CDATA[A array of company ids whose top-offer should be on the top of the result. (array: yes;
+type: long [value: minimum 1 size: maximum 50]; structure: boost_company_id=&lt;long&gt;; example:
+boost_company_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="brand" style="query">
+            <wadl:doc><![CDATA[A array of ORed keywords to match a certain offers's brand. (array: yes; type: string [length:
+maximum 250]; structure: brand=&lt;string&gt;; example: brand=acer; search-features: wildcard-search
+(*))]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="brochure_id" style="query">
+            <wadl:doc><![CDATA[A array of brochure IDs to be included in the result. (array: yes; type: long [value: minimum
+1]; structure: brochure_id=&lt;long&gt;; example: brochure_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="brochure_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of brochure IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: brochure_id_exclude=&lt;long&gt;; example: brochure_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="company_id" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: company_id=&lt;long&gt;; example: company_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="company_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: company_id_exclude=&lt;long&gt;; example: company_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="ean" style="query">
+            <wadl:doc><![CDATA[A array of ORed keywords to match a certain offers's ean. (array: yes; type: string [length: maximum
+250]; structure: ean=&lt;string&gt;; example: ean=98772850954; search-features: wildcard-search (*))]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="facet" style="query">
+            <wadl:doc><![CDATA[The facets to be included in the result. (array: yes; type:
+enum(brand,company,industry,type),integer,integer,integer [offset: minimum 0; count: between 0 and
+1000;min-count: minimum 1]; structure:
+facet=&lt;faceting&gt;,[&lt;offset&gt;],[&lt;count&gt;][,&lt;min-count&gt;]; example:
+facet=industry,0,10,1; default-values: offset=0,count=10,min-count=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address and optionally a radius. (array: no; type:
+float,float,float [latitude: between -90 and 90; longitude: between -180 and 180; radius: between 0
+and 50]; structure: geo=&lt;latitude&gt;,&lt;longitude&gt;[,&lt;radius&gt;]; example:
+geo=52.52,13.04,15.9) OR (array: no; type=string,float [ip-address: valid ipv4 address; radius:
+between 0 and 50]; structure: geo=&lt;IPv4&gt;[,&lt;radius&gt;]; example: geo=192.168.0.10,15.8) If an
+unlimited radius is desired and the request contains a store_id parameter the value of the radius
+could also be "*".]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_images" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with or without images. (array: no; type: boolean; structure:
+has_images=&lt;boolean&gt;; example: has_images=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_layout" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with or without layout according to given layout version.
+If the parameter has_layout is used, parameter layout_version is required.
+(array: no; type: boolean; structure: has_layout=&lt;boolean&gt;; example: has_layout=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_logo" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with or without logo. (array: no; type: boolean; structure:
+has_logo=&lt;boolean&gt;; example: has_logo=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be included in the result. (array: yes; type: long [value: minimum
+1]; structure: industry_id=&lt;long&gt;; example: industry_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: industry_id_exclude=&lt;long&gt;; example: industry_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="is_paid" style="query">
+            <wadl:doc><![CDATA[A filter to request only paid or unpaid offers, this is an optional parameter and all the offers(paid and unpaid) will be returned if omitted.
+(array: no; type: boolean; structure: is_paid=&lt;boolean&gt;; example: is_paid=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="layout_version" style="query">
+            <wadl:doc><![CDATA[The version of the layout of a Discover-brochure. The field layout will only be included in
+the brochure when the expected media-type is json. (array: yes; type: long [value: minimum
+1]; structure: layout_version=&lt;long&gt;; example: layout_version=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="number" style="query">
+            <wadl:doc><![CDATA[A filter to request offers of the given number. (array: yes; type: string [length: maximum
+250]; structure: number=&lt;string&gt;; example: number=number1234)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="page" style="query">
+            <wadl:doc><![CDATA[Which brochure pages are desired? (array: yes; type: enum(first_hit,hits,all) or integer
+[page-number: between 1 and 999]; structure: &lt;page-enum or page-number&gt;; example: page=hits) If
+page is first_hit or hits and no search parameter was received the response contains only the first
+page of the brochure. If the page parameter value is a page-number and the number is greater than the
+page count of a brochure in the result the first page will be selected.]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="product_has_url" style="query">
+            <wadl:doc><![CDATA[A filter to request products with or without urls. (array: no; type: boolean; structure:
+product_has_url=&lt;boolean&gt;; example: product_has_url=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="product_id" style="query">
+            <wadl:doc><![CDATA[A array of product IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: product_id=&lt;long&gt;; example: product_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="product_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of product IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: product_id_exclude=&lt;long&gt;; example: product_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="random_seed" style="query">
+            <wadl:doc><![CDATA[The random seed for random sorting and favoring. (array: no; type: long [value: minimum 0];
+structure: &lt;integer&gt;; example: random_seed=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="related_brochure_id" style="query">
+            <wadl:doc><![CDATA[Related offers to this brochure ID are included in the result. (array: no; type: long
+[value: minimum 1]; structure: related_brochure_id=&lt;long&gt;; example: related_brochure_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="related_product_id" style="query">
+            <wadl:doc><![CDATA[Related offers to this product ID are included in the result. (array: no; type: long
+[value: minimum 1]; structure: related_product_id=&lt;long&gt;; example: related_product_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="search" style="query">
+            <wadl:doc><![CDATA[A search string to match at least one of several field of a certain offer. (array: no; type: string
+[length: maximum 250], structure: search=&lt;string&gt;; example: search=Bau]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[The sorting options. (array: yes; type:
+enum(visible_from,popularity,price,random,relevance,saving,offer_type),enum(asc,desc);
+structure: sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=price,asc; default sort-order:
+visible_from->desc, popularity->desc, relevance->desc, price->asc, random->asc, saving->desc;
+if the request contains the search, the related_brochure_id or
+the related_product_id parameter the default sort order is relevance,desc)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="store_id" style="query">
+            <wadl:doc><![CDATA[A array of store IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: store_id=&lt;long&gt;; example: store_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="store_number" style="query">
+            <wadl:doc><![CDATA[A filter to request offers of the given stores. (array: yes; type: string [length: maximum
+250]; structure: store_number=&lt;string&gt;; example: store_number=0815xyz)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="type" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with the given type. (array: yes; type: enum(product,brochure); structure:
+type=&lt;type&gt;; example: type=brochure)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="type_id" style="query">
+            <wadl:doc><![CDATA[A array of type and type-id to be included in the result. (array: yes; type:
+enum(product,brochure),long [value: minimum 1]; structure: type_id=&lt;type&gt;,&lt;long&gt;; example:
+type_id=product,1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="valid_to" style="query">
+            <wadl:doc><![CDATA[A range filter to request offers become/became expired in the validTo range. (array: no; type:
+yyyy-MM-dd'T'HH:mm:ssXXX (ISO-8601),yyyy-MM-dd'T'HH:mm:ssXXX (ISO-8601); structure:
+valid_to=&lt;timestamp_start&gt;,&lt;timestamp_end&gt;; example:
+valid_to=2013-02-15T12:00:00+01:00,2013-02-18T12:00:00+01:00)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="visible_from" style="query">
+            <wadl:doc><![CDATA[A range filter to request offers becoming visible in the visibleFrom range. (array: no; type:
+yyyy-MM-dd'T'HH:mm:ssXXX (ISO-8601),yyyy-MM-dd'T'HH:mm:ssXXX (ISO-8601); structure:
+visible_from=&lt;timestamp_start&gt;,&lt;timestamp_end&gt;; example:
+visible_from=2013-02-15T12:00:00+01:00,2013-02-18T12:00:00+01:00)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the product should be extended by title and logo.
+(array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_future_content" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include also offers visible in the future.
+Only selected channels support this parameter. Otherwise no results will be returned when the parameter is set to <code>true</code>.
+(array: no; type: boolean; structure: with_store_ids=&lt;boolean&gt;; example: with_future_content=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include the next store, that offer the offer. Next
+store could only be delivered if the request contains a geo filter. ATTENTION: An offer-request with
+the parameter <i>with_store=true</i> may not always deliver a next store. An offer-resource without a
+next store represents a national offer. (array: no; type: boolean; structure:
+with_store=&lt;boolean&gt;; example: with_store=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store_ids" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include IDs of all stores, where the offer is available at.
+(array: no; type: boolean; structure: with_store_ids=&lt;boolean&gt;; example: with_store_ids=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_text" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include extracted texts for each brochure page. (array:
+no; type: boolean; structure: with_text=&lt;boolean&gt;; example: with_text=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching offer-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="offer_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../stores">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple stores that matches several
+parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="boost_company_id" style="query">
+            <wadl:doc><![CDATA[A array of company ids whose stores should be on the top of the result. (array: yes; type:
+long [value: minimum 1 size: maximum 50]; structure: boost_company_id=&lt;long&gt;; example:
+boost_company_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="brochure_id" style="query">
+            <wadl:doc><![CDATA[A array of brochure IDs to be included in the result. (array: yes; type: long [value: minimum
+1]; structure: brochure_id=&lt;long&gt;; example: brochure_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="city_id" style="query">
+            <wadl:doc><![CDATA[A array of city IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: city_id=&lt;long&gt;; example: city_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="city_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of city IDs to be excluded from the result. (array: yes; type: long [value: minimum
+1]; structure: city_id_exclude=&lt;long&gt;; example: city_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="company_id" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: company_id=&lt;long&gt;; example: company_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="company_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: company_id_exclude=&lt;long&gt;; example: company_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="county_id" style="query">
+            <wadl:doc><![CDATA[A array of county IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: county_id=&lt;long&gt;; example: county_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="facet" style="query">
+            <wadl:doc><![CDATA[The facets to be included in the result. (array: yes; type:
+enum(industry,company,county,city,state),integer,integer,integer [offset: minimum 0; count: between 0
+and 1000;min-count: minimum 1]; structure:
+facet=&lt;faceting&gt;,[&lt;offset&gt;],[&lt;count&gt;][,&lt;min-count&gt;]; example:
+facet=industry,0,10,1; default-values: offset=0,count=10,min-count=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="first_by_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if there should be only one store per company. (array: no; type: boolean;
+structure: first_by_company=&lt;boolean&gt;; example: first_by_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address and optionally a radius. (array: no; type:
+float,float,float [latitude: between -90 and 90; longitude: between -180 and 180; radius: between 0
+and 1000]; structure: geo=&lt;latitude&gt;,&lt;longitude&gt;[,&lt;radius&gt;]; example:
+geo=52.52,13.04,15.9) OR (array: no; type=string,float [ip-address: valid ipv4 address; radius:
+between 0 and 1000]; structure: geo=&lt;IPv4&gt;[,&lt;radius&gt;]; example: geo=192.168.0.10,15.8) If
+an unlimited radius is desired the value of the radius could also be "*".]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_brochures" style="query">
+            <wadl:doc><![CDATA[A filter to request stores with or without brochures. (array: no; type: boolean; structure:
+has_brochures=&lt;boolean&gt;; example: has_brochures=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_logo" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with or without logo. (array: no; type: boolean; structure:
+has_logo=&lt;boolean&gt;; example: has_logo=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_offers" style="query">
+            <wadl:doc><![CDATA[A filter to request stores with or without offers. (array: no; type: boolean; structure:
+has_offers=&lt;boolean&gt;; example: has_offers=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_products" style="query">
+            <wadl:doc><![CDATA[A filter to request stores with or without products. (array: no; type: boolean; structure:
+has_products=&lt;boolean&gt;; example: has_products=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_toilet" style="query">
+            <wadl:doc><![CDATA[A filter to request stores either have a toilet for customer or not. (array: no; type: boolean;
+structure: has_toilet=&lt;boolean&gt;; example: has_toilet=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="hours" style="query">
+            <wadl:doc><![CDATA[A filter to request stores opened within hours. (array: no; type: integer [value: between 1 and
+7],HH:mm [value: ISO-8601],HH:mm [value: ISO-8601]; structure:
+hours=&lt;day_of_week&gt;[,&lt;time_from&gt;][,&lt;time_to&gt;]; example: hours=1,08:00,12:00)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id" style="query">
+            <wadl:doc><![CDATA[A array of store IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: id=&lt;long&gt;; example: id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of store IDs to be excluded from the result. (array: yes; type: long [value: minimum 1];
+structure: id_exclude=&lt;long&gt;; example: id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be included in the result. (array: yes; type: long [value: minimum
+1]; structure: industry_id=&lt;long&gt;; example: industry_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: industry_id_exclude=&lt;long&gt;; example: industry_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="is_barrier_free" style="query">
+            <wadl:doc><![CDATA[A filter to request stores either are barrier free or not. (array: no; type: boolean;
+structure: is_barrier_free=&lt;boolean&gt;; example: is_barrier_free=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="number" style="query">
+            <wadl:doc><![CDATA[A filter to request stores with the specific number. (array: yes; type: string [length: maximum
+250]; structure: number=&lt;string&gt;; example: number=0815xyz)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="product_id" style="query">
+            <wadl:doc><![CDATA[A array of product IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: product_id=&lt;long&gt;; example: product_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="random_seed" style="query">
+            <wadl:doc><![CDATA[The random seed for random sorting and favoring. (array: no; type: long [value: minimum 0];
+structure: &lt;integer&gt;; example: random_seed=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="search" style="query">
+            <wadl:doc><![CDATA[A search string to match at least one of several field of a certain store. (array: no; type: string
+[length: maximum 250], structure: search=&lt;string&gt;; example: search=Bau;
+search-fields(weight):title(3), company title(2), industry title(2), subtitle(1), city(1), zipcode(1),
+street(1), company keywords(1), description(0.5))]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="search_in" style="query">
+            <wadl:doc><![CDATA[Target of the search parameter. (array: no; type: enum(store_and_offer,offer), structure:
+search_in=&lt;target&gt;; example: search_in=offer)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[The sorting options. (array: yes; type:
+enum(title,relevance,random,created,distance),enum(asc,desc); structure:
+sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=relevance,desc; default sort-order:
+title->asc, relevance->desc, random->asc, created->desc, distance->asc; if the
+request contains the search parameter the default sort order is relevance,desc;
+sorting by popularity will be removed from version 4.2022.11.01 on and shouldn't be used anymore)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the product should be extended by title and logo.
+(array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching store-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="store_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../storeusermappings">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple store-user-mappings that matches
+several parameters. A store-user-mapping maps a store to a user that favored the store.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="store_id" style="query">
+            <wadl:doc><![CDATA[A array of store IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: id=&lt;long&gt;; example: id=1)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching store-user-mapping-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="storeusermappings"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../suggestions">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="company_id" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be included in the result. (array: yes; type: long [value: minimum
+1]; structure: company_id=&lt;long&gt;; example: company_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address and optionally a radius. (array: no; type:
+float,float,float [latitude: between -90 and 90; longitude: between -180 and 180; radius: between 0
+and 1000]; structure: geo=&lt;latitude&gt;,&lt;longitude&gt;[,&lt;radius&gt;]; example:
+geo=52.52,13.04,15.9) OR (array: no; type=string,float [ip-address: valid ipv4 address; radius:
+between 0 and 1000]; structure: geo=&lt;IPv4&gt;[,&lt;radius&gt;]; example: geo=192.168.0.10,15.8) If
+an unlimited radius is desired the value of the radius could also be "*".]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be included in the result. (array: yes; type: long [value: minimum
+1]; structure: industry_id=&lt;long&gt;; example: industry_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="store_id" style="query">
+            <wadl:doc><![CDATA[A array of store IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: store_id=&lt;long&gt;; example: store_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="title" style="query">
+            <wadl:doc><![CDATA[A keyword to suggest. (array: no; type: string [length: maximum 250]; structure:
+title=&lt;string&gt;; example: title=Bau)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_brochures" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the most popular brochure for a company suggestion should be included in the
+result. (array: no; type: boolean; structure: with_brochure=&lt;boolean&gt;; example:
+with_brochure=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of suggestions and optionally company meanings.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="suggestion_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../trackings">
+      <wadl:method name="POST">
+        <wadl:doc><![CDATA[<p>
+<b>DEPRECATED</b> - Please use our tracking-pipeline to send trackings. The pipeline is available under https://tracking.offerista.com.
+</p>
+
+<p>
+An endpoint of the web-service, that manages requests to create a single tracking.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:doc><![CDATA[Tracking to create.]]></wadl:doc>
+          <wadl:representation mediaType="application/json">
+          </wadl:representation>
+          <wadl:representation mediaType="application/xml" element="tracking">
+          </wadl:representation>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[Either at least one parameter is invalid, a required header was not specified or the body is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="406">
+          <wadl:doc><![CDATA[The input is not acceptable.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="201">
+          <wadl:doc><![CDATA[]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../users">
+      <wadl:method name="POST">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to create a single user.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:doc><![CDATA[to create.]]></wadl:doc>
+          <wadl:representation mediaType="application/json">
+          </wadl:representation>
+          <wadl:representation mediaType="application/xml" element="user">
+          </wadl:representation>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[Either at least one parameter is invalid, a required header was not specified or the body is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="201">
+          <wadl:doc><![CDATA[the created user.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../zipcodes">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple zipcodes that matches several
+parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="city_id" style="query">
+            <wadl:doc><![CDATA[A array of city IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: city_id=&lt;long&gt;; example: city_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="country_code" style="query">
+            <wadl:doc><![CDATA[A array of country codes to be included in the result. (array: yes; type: string; structure:
+country_code=&lt;string&gt;; example: country_code=DE)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. The radius is ignored by this endpoint. (array: no; type:
+float,float,float [latitude: between -90 and 90; longitude: between -180 and 180; radius: between 0
+and 1000]; structure: geo=&lt;latitude&gt;,&lt;longitude&gt;[,&lt;radius&gt;]; example:
+geo=52.52,13.04,15.9) OR (array: no; type=string,float [ip-address: valid ipv4 address; radius:
+between 0 and 1000]; structure: geo=&lt;IPv4&gt;[,&lt;radius&gt;]; example: geo=192.168.0.10,15.8).
+The purpose of geo here is not to filter zipcodes but to list down the distance of zipcodes from the provided geo coordinates.]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id" style="query">
+            <wadl:doc><![CDATA[A array of zipcode IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: id=&lt;long&gt;; example: id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of zipcode IDs to be excluded from the result. (array: yes; type: long [value: minimum
+1]; structure: id_exclude=&lt;long&gt;; example: id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[The sorting options. (array: yes; type: enum(title, distance), enum(asc,desc); structure:
+sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=title,asc) The default sort-oder for the sortings
+are title->asc and distance->asc.]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="title" style="query">
+            <wadl:doc><![CDATA[A array of ORed keywords to match a certain zipcode's title. (array: yes; type: string [length:
+maximum 250]; structure: title=&lt;string&gt;; example: title=011*; search-features: wildcard-search
+(*))]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching zipcode-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="zipcode_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../cities/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific city.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single city-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="city"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the city.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../companies/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific company.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single company-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="company"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the company.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../counties/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific county.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single county-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="county"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the county.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../industries/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific industry.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single industry-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="industry"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the industry.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../keywords/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific keyword.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single keyword-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="keyword"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the keyword.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/expired">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple expired offers that matches several
+parameter.
+Default sort-order: visible_from->desc
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="company_id" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be included in the result. (array: yes; type: long [value: minimum 1];
+structure: company_id=&lt;long&gt;; example: company_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="company_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: company_id_exclude=&lt;long&gt;; example: company_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="facet" style="query">
+            <wadl:doc><![CDATA[The facets to be included in the result. (array: yes; type: enum(company),integer,integer,integer
+[offset: minimum 0; count: between 0 and 1000;min-count: minimum 1];
+structure: facet=&lt;faceting&gt;,[&lt;offset&gt;],[&lt;count&gt;][,&lt;min-count&gt;];
+example: facet=industry,0,10,1; default-values: offset=0,count=10,min-count=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="has_successor" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with or without a successor. (array: no; type: boolean; structure:
+has_successor=&lt;boolean&gt;; example: has_successor=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be included in the result. (array: yes; type: long [value: minimum
+1]; structure: industry_id=&lt;long&gt;; example: industry_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="industry_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of industry IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: industry_id_exclude=&lt;long&gt;; example: industry_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="number" style="query">
+            <wadl:doc><![CDATA[A filter to request offers of the given number. (array: yes; type: string [length: maximum
+250]; structure: number=&lt;string&gt;; example: number=number1234)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="type" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with the given type. (array: yes; type: enum(product,brochure); structure:
+type=&lt;type&gt;; example: type=brochure)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="valid_to" style="query">
+            <wadl:doc><![CDATA[A range filter to request offers become/became expired in the validTo range. (array: no; type:
+yyyy-MM-dd'T'HH:mm:ssXXX (ISO-8601),yyyy-MM-dd'T'HH:mm:ssXXX (ISO-8601); structure:
+valid_to=&lt;timestamp_start&gt;,&lt;timestamp_end&gt;; example:
+valid_to=2013-02-15T12:00:00+01:00,2013-02-18T12:00:00+01:00)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the product should be extended by title and logo.
+(array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include the next store, that offer the offer. Next
+store could only be delivered if the request contains a geo filter. ATTENTION: An offer-request with
+the parameter <i>with_store=true</i> may not always deliver a next store. An offer-resource without a
+next store represents a national offer. (array: no; type: boolean; structure:
+with_store=&lt;boolean&gt;; example: with_store=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching expired offer-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="offer_result"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/top">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve the top offer for a specific company and
+a specific booking.
+</p>
+
+<p>
+The system calculates the top-offer as follows:
+
+<ul>
+<li>Regular: offer of the booking and company</li>
+<li>Fallback1: offer of the booking and company with unlimited radius</li>
+<li>Fallback2: offer of the company</li>
+<li>Fallback3: offer of the company with unlimited radius</li>
+<li>Fallback4: offer of the industry</li>
+<li>Fallback5: offer of the industry with unlimited radius</li>
+<li>Fallback6: offer overall</li>
+<li>Fallback7: offer overall with unlimited radius</li>
+</ul>
+</p>
+
+<p>
+The results of the individual cases are sorted as follows:
+
+<ul>
+<li>brochures first</li>
+<li>leaflets first</li>
+<li>user-language first</li>
+<li>random</li>
+</ul>
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="booking_id" style="query">
+            <wadl:doc><![CDATA[Id of the booking thats top-offer is requested. (array: no; type: long [value: minimum 1];
+structure: booking_id=&lt;long&gt;; example: booking_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="company_id" style="query">
+            <wadl:doc><![CDATA[Id of the company thats top-offer is requested.(array: no; type: long [value: minimum 1];
+structure: company_id=&lt;long&gt;; example: company_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="company_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: company_id_exclude=&lt;long&gt;; example: company_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="layout_version" style="query">
+            <wadl:doc><![CDATA[The version of the layout of a Discover-brochure. The field layout will only be included in
+the brochure when the expected media-type is json. (array: yes; type: long [value: minimum
+1]; structure: layout_version=&lt;long&gt;; example: layout_version=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_additional_pages" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the brochure response should include additional page(s) that should be attached at the end of the brochure.
+(array: no; type: boolean; structure: with_additional_pages=&lt;boolean&gt;; example: with_additional_pages=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the product should be extended by title and logo.
+(array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include the next store, that offer the product. Next
+store could only be delivered if the request contains a geo filter. ATTENTION: An offer-request with
+the parameter <i>with_store=true</i> may not always deliver a next store. An offer-resource without a
+next store represents a national offer. (array: no; type: boolean; structure:
+with_store=&lt;boolean&gt;; example: with_store=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single offer-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../stores/stream">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to retrieve a stream of all stores.
+Default sort-order: title->asc
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="row_count" style="query">
+            <wadl:doc><![CDATA[number of rows for pagination (array: no; type: long [value: minimum 1]; structure:
+row_count=&lt;long&gt;; example: row_count=1)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A stream of store-entities]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../stores/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific store.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the product should be extended by title and logo.
+(array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single store-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="store"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the store.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../trackings/collection">
+      <wadl:method name="POST">
+        <wadl:doc><![CDATA[<p>
+<b>DEPRECATED</b> - Please use our tracking-pipeline to send trackings. The pipeline is available under https://tracking.offerista.com.
+</p>
+
+<p>
+An endpoint of the web-service, that manages requests to create a list of trackings.
+</p>
+
+<p>
+<b>Example XML:</b>
+
+<pre>
+ &lt;trackings&gt;
+ &nbsp;&nbsp;&lt;tracking&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;...
+ &nbsp;&nbsp;&lt;/tracking&gt;
+ &nbsp;&nbsp;...
+ &lt;/trackings&gt;
+ </pre>
+
+</p>
+
+<p>
+<b>Example JSON:</b>
+
+<pre>
+ [
+ &nbsp;&nbsp;{
+ &nbsp;&nbsp;&nbsp;&nbsp;"resource":"tracking",
+ &nbsp;&nbsp;&nbsp;&nbsp;...
+ &nbsp;&nbsp;}
+ &nbsp;&nbsp;...
+ ]
+ </pre>
+
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:doc><![CDATA[List of trackings. [length: between 1 and 1000]]]></wadl:doc>
+          <wadl:representation mediaType="application/json">
+          </wadl:representation>
+          <wadl:representation mediaType="application/xml" element="tracking">
+          </wadl:representation>
+        </wadl:request>
+        <wadl:response status="204">
+          <wadl:doc><![CDATA[The request was successful.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[Either at least one parameter is invalid, a required header was not specified or the body is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="406">
+          <wadl:doc><![CDATA[The input is not acceptable.]]></wadl:doc>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../trackings/{id}">
+      <wadl:method name="PUT">
+        <wadl:doc><![CDATA[<p>
+<b>DEPRECATED</b> - Please use our tracking-pipeline to send trackings. The pipeline is available under https://tracking.offerista.com.
+</p>
+
+<p>
+An endpoint of the web-service, that manages requests to update a single tracking.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:doc><![CDATA[Tracking to update.]]></wadl:doc>
+          <wadl:representation mediaType="application/json">
+          </wadl:representation>
+          <wadl:representation mediaType="application/xml" element="tracking">
+          </wadl:representation>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[Either at least one parameter is invalid, a required header was not specified or the body is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="406">
+          <wadl:doc><![CDATA[The input is not acceptable.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="tracking"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the tracking.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../usecases/brochure_pageflip">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An usecase specific endpoint to receive a brochure for the pageflip. The response includes the brochure with next
+store and company information and a list of related offers.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="brochure_id" style="query">
+            <wadl:doc><![CDATA[The id of the brochure. (array: no; type: long [value: minimum 1]; structure:
+brochure_id=&lt;long&gt;; example: brochure_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="layout_version" style="query">
+            <wadl:doc><![CDATA[The version of the layout of a Discover-brochure. The field layout will only be included in
+the brochure when the expected media-type is json. (array: yes; type: long [value: minimum
+1]; structure: layout_version=&lt;long&gt;; example: layout_version=1]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="related_fill_up" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the related offer part should be filled up. (array: no; type: boolean;
+structure: related_fill_up=&lt;boolean&gt;; example: related_fill_up=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="related_limit_count" style="query">
+            <wadl:doc><![CDATA[The number of related offers. (array: no; type: integer [count: between 0 and 50];
+structure: related_limit_count=&lt;count&gt;; example: related_limit_count=10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="related_page" style="query">
+            <wadl:doc><![CDATA[Which brochure pages are desired? (array: yes; type: enum(first_hit,hits,all) or integer
+[page-number: between 1 and 999]; structure: &lt;page-enum or page-number&gt;; example: page=hits)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="related_type" style="query">
+            <wadl:doc><![CDATA[The type of related offers. (array: no; type: enum(product,brochure); structure:
+type=&lt;type&gt;; example: type=brochure)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="related_with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the related offer part of the response should include the next
+store, that offer the related offer. Next store could only be delivered if the request contains a geo
+filter. ATTENTION: An request with the parameter <i>relate_with_store=true</i> may not always deliver
+a next store. An related-offer-resource without a next store represents a national offer. (array: no;
+type: boolean; structure: related_with_store=&lt;boolean&gt;; example: related_with_store=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_additional_pages" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the brochure response should include additional page(s) that should be attached at the end of the brochure.
+(array: no; type: boolean; structure: with_additional_pages=&lt;boolean&gt;; example: with_additional_pages=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="brochure_pageflip"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../users/{user_uuid}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to retrieve a specific user.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single user-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="user"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="user_uuid" style="template">
+        <wadl:doc><![CDATA[UUID of the user.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../users/{user_uuid}">
+      <wadl:method name="DELETE">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to delete a single user and all its favorites.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="204">
+          <wadl:doc><![CDATA[The request was successful.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="user_uuid" style="template">
+        <wadl:doc><![CDATA[UUID of the user.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../zipcodes/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific zipcode.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single zipcode-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="zipcode"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the zipcode.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../companies/{id}/top-offer">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve the top offer for a specific company.
+</p>
+
+<p>
+The system calculates the top-offer as follows:
+
+<ul>
+<li>Regular: offer of the company</li>
+<li>Fallback1: offer of the company with unlimited radius</li>
+<li>Fallback2: offer of the industry</li>
+<li>Fallback3: offer of the industry with unlimited radius</li>
+<li>Fallback4: offer overall</li>
+<li>Fallback5: offer overall with unlimited radius</li>
+</ul>
+</p>
+
+<p>
+The results of the individual cases are sorted as follows:
+
+<ul>
+<li>favored first</li>
+<li>brochures first</li>
+<li>leaflets first</li>
+<li>user-language first</li>
+<li>random</li>
+</ul>
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="company_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of company IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: company_id_exclude=&lt;long&gt;; example: company_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="layout_version" style="query">
+            <wadl:doc><![CDATA[The version of the layout of a Discover-brochure. The field layout will only be included in
+the brochure when the expected media-type is json. (array: yes; type: long [value: minimum
+1]; structure: layout_version=&lt;long&gt;; example: layout_version=1]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the product should be extended by title and logo.
+(array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_fallback" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the fallbacks should be used. (array: no; type: boolean; structure:
+with_fallback=&lt;boolean&gt;; example: with_fallback=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include the next store, that offer the product. Next
+store could only be delivered if the request contains a geo filter. ATTENTION: An offer-request with
+the parameter <i>with_store=true</i> may not always deliver a next store. An offer-resource without a
+next store represents a national offer. (array: no; type: boolean; structure:
+with_store=&lt;boolean&gt;; example: with_store=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single offer-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the company.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/brochures/redirect">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An usecase specific endpoint to receive a brochure for the redirect usecase.
+<p>
+The desired brochure is determined by the following fallback scenarios:
+
+<pre>
+   0. If a brochureId was sent and the brochure exists it will be returned, independent from the other parameters.
+   1. If a companyId was sent and case 0 did not returned a brochure and a brochure of the company exists
+      (this also depends on the geo parameter) this brochure will be returned. In the case more than one brochure
+      exists, the first depending on sort by "popularity, desc" will be taken.
+   2. If a companyId was sent and case 0 and case 1 did not returned a brochure and a brochure of the industry of
+      the company exists (this also depends on the geo parameter) this brochure will be returned. In the case more
+      than one brochure exists, the first depending on sort by "popularity, desc" will be taken.
+   3. If no brochure was returned by the previous cases and at least brochure exists (this also depends on the geo
+      parameter) this brochure will be returned. In the case more than one brochure exists, the first depending
+      on sort by "popularity, desc" will be taken.
+   </pre>
+<p>
+If you send a geo parameter and add the "*" as radius the desired brochure three additional fallback scenarios
+are executed:
+
+<pre>
+   1.1 If a companyId was sent and case 0 and case 1 did not returned a brochure and a brochure of the company
+       exists, but not within the visibility-radius of the user this brochure will be returned. In the case more
+       than one brochure exists, the first depending on sort by "popularity, desc" will be
+       taken.
+   2.1 If a companyId was sent and case 0, 1, 1.1 and 2 did not returned a brochure and a brochure of the
+       industry of the company exists, but not within the visibility-radius of the user this brochure will be
+       returned. In the case more than one brochure exists, the first depending on sort by "popularity, desc" will be taken.
+   3.1 If no brochure was returned by the previous cases and at least brochure exists, but not within the
+       visibility-radius of the user this brochure will be returned. In the case more than one brochure exists,
+       the first depending on sort by "popularity, desc" will be taken.
+   </pre>
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="brochure_id" style="query">
+            <wadl:doc><![CDATA[The id of the desired brochure. (array: no; type: long [value: minimum 1]; structure:
+brochure_id=&lt;long&gt;; example: brochure_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="company_id" style="query">
+            <wadl:doc><![CDATA[The id of the desired company. (array: no; type: long [value: minimum 1]; structure:
+company_id=&lt;long&gt;; example: company_id=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10)
+If you want to enable the fallback cases with unlimited radius you just have to add a ",*"
+to the parameter value.]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="layout_version" style="query">
+            <wadl:doc><![CDATA[The version of the layout of a Discover-brochure. The field layout will only be included in
+the brochure when the expected media-type is json. (array: yes; type: long [value: minimum
+1]; structure: layout_version=&lt;long&gt;; example: layout_version=1)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single brochure-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="brochure"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/brochures/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific brochure - either current or expired.
+Future brochures can be retrieved by using the parameter 'with_future_content' if given channel allows this feature.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10).
+Parameter 'geo' in this endpoint is only to be used along with the with_store parameter and will have no impact
+in case it is used without with_store parameter. Furthermore, radius is not allowed for this
+call and should not be specified]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="layout_version" style="query">
+            <wadl:doc><![CDATA[The version of the layout of a Discover-brochure. The field layout will only be included in
+the brochure when the expected media-type is json. (array: yes; type: long [value: minimum
+1]; structure: layout_version=&lt;long&gt;; example: layout_version=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_additional_pages" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the brochure response should include additional page(s) that should be attached at the end of the brochure.
+(array: no; type: boolean; structure: with_additional_pages=&lt;boolean&gt;; example: with_additional_pages=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the brochure should be extended by title and logo.
+(array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_future_content" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include also offers visible in the future.
+Only selected channels support this parameter. Otherwise no results will be returned when the parameter is set to <code>true</code>.
+(array: no; type: boolean; structure: with_future_content=&lt;boolean&gt;; example: with_future_content=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include the next store, that offer the brochure. Next
+store could only be delivered if the request contains a geo filter. ATTENTION: An offer-request with
+the parameter <i>with_store=true</i> may not always deliver a next store. An offer-resource without a
+next store represents a national offer. (array: no; type: boolean; structure:
+with_store=&lt;boolean&gt;; example: with_store=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single brochure-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="brochure"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the brochure.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/products/stream">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to retrieve a stream of all active products.
+Default sort-order: popularity->desc
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="row_count" style="query">
+            <wadl:doc><![CDATA[number of rows for pagination (array: no; type: long [value: minimum 1]; structure:
+row_count=&lt;long&gt;; example: row_count=1)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A stream of active product-entities]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/products/{id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a specific product.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10).
+Parameter 'geo' in this endpoint is only to be used along with the with_store parameter and will have no impact
+in case it is used without with_store parameter. Furthermore, radius is not allowed for this
+call and should not be specified]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the product should be extended by title and logo.
+(array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include the next store, that offer the product. Next
+store could only be delivered if the request contains a geo filter. ATTENTION: An offer-request with
+the parameter <i>with_store=true</i> may not always deliver a next store. An offer-resource without a
+next store represents a national offer. (array: no; type: boolean; structure:
+with_store=&lt;boolean&gt;; example: with_store=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single product-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="product"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="id" style="template">
+        <wadl:doc><![CDATA[Id of the product.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../users/{user_uuid}/favorites">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple favorites of an user that matches
+several parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching favorite-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="favorite_result"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="user_uuid" style="template">
+        <wadl:doc><![CDATA[UUID of the user.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../users/{user_uuid}/favorites">
+      <wadl:method name="POST">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to create a single favorite for an user.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:doc><![CDATA[to create.]]></wadl:doc>
+          <wadl:representation mediaType="application/json">
+          </wadl:representation>
+          <wadl:representation mediaType="application/xml" element="favorite">
+          </wadl:representation>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[Either at least one parameter is invalid, a required header was not specified or the body is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="201">
+          <wadl:doc><![CDATA[the created favorite.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="user_uuid" style="template">
+        <wadl:doc><![CDATA[UUID of the user.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/discovers/{discover_id}/products">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve products of a discover with given ID.
+List of discover products is the same for all layout versions.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_future_content" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include also offers visible in the future.
+Only selected channels support this parameter. Otherwise no results will be returned when the parameter is set to <code>true</code>.
+(array: no; type: boolean; structure: with_store_ids=&lt;boolean&gt;; example: with_future_content=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of matching product-entities.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="offer_result"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="discover_id" style="template">
+        <wadl:doc><![CDATA[]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/products/expired/stream">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to retrieve a stream of all expired products.
+Default sort-order: visible_from->desc
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="has_successor" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with or without a successor. (array: no; type: boolean; structure:
+has_successor=&lt;boolean&gt;; example: has_successor=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="row_count" style="query">
+            <wadl:doc><![CDATA[number of rows for pagination (array: no; type: long [value: minimum 1]; structure:
+row_count=&lt;long&gt;; example: row_count=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="valid_to" style="query">
+            <wadl:doc><![CDATA[A range filter to request offers become/became expired in the validTo range. (array: no; type:
+yyyy-MM-dd'T'HH:mm:ssXXX (ISO-8601),yyyy-MM-dd'T'HH:mm:ssXXX (ISO-8601); structure:
+valid_to=&lt;timestamp_start&gt;,&lt;timestamp_end&gt;; example:
+valid_to=2013-02-15T12:00:00+01:00,2013-02-18T12:00:00+01:00)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A stream of expired product-entities]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+        </wadl:response>
+      </wadl:method>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/products/{product_id}/successor">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages single-requests to retrieve a successor for a specific product.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single product-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="product_id" style="template">
+        <wadl:doc><![CDATA[Id of the product.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../users/{user_uuid}/favorites/{favorite_id}">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to retrieve a specific favorite for a specific user.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A single favorite-entity.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="favorite"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="user_uuid" style="template">
+        <wadl:doc><![CDATA[UUID of the user.]]></wadl:doc>
+      </wadl:param>
+      <wadl:param name="favorite_id" style="template">
+        <wadl:doc><![CDATA[of the favorite.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../users/{user_uuid}/favorites/{favorite_id}">
+      <wadl:method name="DELETE">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages requests to delete a single favorite for a specific user.
+</p>]]></wadl:doc>
+        <wadl:request>
+        </wadl:request>
+        <wadl:response status="204">
+          <wadl:doc><![CDATA[The request was successful.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="404">
+          <wadl:doc><![CDATA[The resource does not exists.]]></wadl:doc>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="user_uuid" style="template">
+        <wadl:doc><![CDATA[UUID of the user.]]></wadl:doc>
+      </wadl:param>
+      <wadl:param name="favorite_id" style="template">
+        <wadl:doc><![CDATA[of the favorite to delete.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/brochures/{brochure_id}/related/offers">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple offers that are related to the
+brochure identified by the brochure_id path parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="brochure_id_exclude" style="query">
+            <wadl:doc><![CDATA[A array of brochure IDs to be excluded from the result. (array: yes; type: long [value:
+minimum 1]; structure: brochure_id_exclude=&lt;long&gt;; example: brochure_id_exclude=1)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="is_paid" style="query">
+            <wadl:doc><![CDATA[A filter to request only paid or unpaid offers, this is an optional parameter and all the offers(paid and unpaid) will be returned if omitted.
+(array: no; type: boolean; structure: is_paid=&lt;boolean&gt;; example: is_paid=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="page" style="query">
+            <wadl:doc><![CDATA[Which brochure pages are desired? (array: yes; type: enum(first_hit,hits,all) or integer
+[page-number: between 1 and 999]; structure: &lt;page-enum or page-number&gt;; example: page=hits) If
+page is first_hit or hits and no search parameter was received the response contains only the first
+page of the brochure. If the page parameter value is a page-number and the number is greater than the
+page count of a brochure in the result the first page will be selected.]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[The sorting options. (array: yes; type: enum(favored_grouped),enum(asc,desc); structure:
+sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=favored_grouped,asc; default sort-order:
+favored_grouped->desc)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="type" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with the given type. (array: yes; type: enum(product,brochure); structure:
+type=&lt;type&gt;; example: type=brochure)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the single offers should be extended by title and
+logo. (array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_future_content" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the given <code>brochureId</code> and response should include also offers visible in the future.
+Only selected channels support this parameter. Otherwise, no results will be returned when the parameter is set to <code>true</code>.
+(array: no; type: boolean; structure: with_future_content=&lt;boolean&gt;; example: with_future_content=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include the next store, that offer the offer. Next
+store could only be delivered if the request contains a geo filter. ATTENTION: An offer-request with
+the parameter <i>with_store=true</i> may not always deliver a next store. An offer-resource without a
+next store represents a national offer. (array: no; type: boolean; structure:
+with_store=&lt;boolean&gt;; example: with_store=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of related offers.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="offer_result"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="brochure_id" style="template">
+        <wadl:doc><![CDATA[Id of the brochure.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+
+    <wadl:resource path="../offers/products/{product_id}/related/offers">
+      <wadl:method name="GET">
+        <wadl:doc><![CDATA[<p>
+An endpoint of the web-service, that manages list-requests to retrieve multiple offers that are related to the
+product identified by the product_id path parameter.
+</p>]]></wadl:doc>
+        <wadl:request>
+          <wadl:param name="geo" style="query">
+            <wadl:doc><![CDATA[The coordinates of the users location or its IP-address. (array: no; type: float,float [latitude:
+between -90 and 90; longitude: between -180 and 180]; structure:
+geo=&lt;latitude&gt;,&lt;longitude&gt;; example: geo=52.52,13.04) OR (array: no; type=string
+[ip-address: valid ipv4 address]; structure: geo=&lt;IPv4&gt;; example: geo=192.168.0.10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="is_paid" style="query">
+            <wadl:doc><![CDATA[A filter to request only paid or unpaid offers, this is an optional parameter and all the offers(paid and unpaid) will be returned if omitted.
+(array: no; type: boolean; structure: is_paid=&lt;boolean&gt;; example: is_paid=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="limit" style="query">
+            <wadl:doc><![CDATA[The offset and limit for pagination. (array: no; type: integer,integer [offset: minimum 0; count:
+between 0 and 1000]; structure: limit=[&lt;offset&gt;][,&lt;count&gt;]; example: limit=10,10)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="page" style="query">
+            <wadl:doc><![CDATA[Which brochure pages are desired? (array: yes; type: enum(first_hit,hits,all) or integer
+[page-number: between 1 and 999]; structure: &lt;page-enum or page-number&gt;; example: page=hits) If
+page is first_hit or hits and no search parameter was received the response contains only the first
+page of the brochure. If the page parameter value is a page-number and the number is greater than the
+page count of a brochure in the result the first page will be selected.]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="sort" style="query">
+            <wadl:doc><![CDATA[The sorting options. (array: yes; type: enum(favored_grouped),enum(asc,desc); structure:
+sort=&lt;sorting&gt;[,&lt;order&gt;]; example: sort=favored_grouped,asc; default sort-order:
+favored_grouped->desc)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="type" style="query">
+            <wadl:doc><![CDATA[A filter to request offers with the given type. (array: yes; type: enum(product,brochure); structure:
+type=&lt;type&gt;; example: type=brochure)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_company" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the company link in the single offers should be extended by title and
+logo. (array: no; type: boolean; structure: with_company=&lt;boolean&gt;; example: with_company=true)]]></wadl:doc>
+          </wadl:param>
+          <wadl:param name="with_store" style="query">
+            <wadl:doc><![CDATA[<code>true</code> if the response should include the next store, that offer the offer. Next
+store could only be delivered if the request contains a geo filter. ATTENTION: An offer-request with
+the parameter <i>with_store=true</i> may not always deliver a next store. An offer-resource without a
+next store represents a national offer. (array: no; type: boolean; structure:
+with_store=&lt;boolean&gt;; example: with_store=true)]]></wadl:doc>
+          </wadl:param>
+        </wadl:request>
+        <wadl:response status="400">
+          <wadl:doc><![CDATA[At least one parameter is invalid.]]></wadl:doc>
+        </wadl:response>
+        <wadl:response status="200">
+          <wadl:doc><![CDATA[A list of related offers.]]></wadl:doc>
+          <wadl:representation mediaType="application/json"/>
+          <wadl:representation mediaType="application/xml" element="offer_result"/>
+        </wadl:response>
+      </wadl:method>
+      <wadl:param name="product_id" style="template">
+        <wadl:doc><![CDATA[Id of the product.]]></wadl:doc>
+      </wadl:param>
+    </wadl:resource>
+  </wadl:resources>
+</wadl:application>

@@ -9,3 +9,5 @@ vendor/creatorsapi-nodejs-sdk/dist
 
 .claude
 .cursor
+
+tmp/

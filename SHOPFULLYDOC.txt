@@ -1,0 +1,1632 @@
+Webservice Offerista Group GmbH
+Resources
+Data Types
+Resources
+XML
+Back to Top
+Home
+Webservice Offerista Group GmbH
+This documentation describes the RESTful webservice of Offerista Group GmbH.
+
+The base-url of the web-service is: https://delivery.offerista.com
+
+Changelog
+The changelog is available here.
+Authentication
+The authentication is based on the HTTP-basic authentication. You have to take the key as username and the secret as password. Due the encryption per SSL the informations are transferred securely.
+
+GET-Requests
+For all receivable resources two kinds of requests are supported. You can request a single-resource (example: https://delivery.offerista.com/companies/1) and a list-resource (example: https://delivery.offerista.com/companies?parameter1=value1&parameter2=value2), that includes a list of single resources. A single-resource-request contain one path-parameter - the required id - and several query-parameter, if the endpoint supports query-parameter for this kind of request. A list-resource-request contain several query-parameter to qualify the list-entries or to change other properties of the list-entries, f.e. the order of the entries. Query-parameter to qualify the list-entries are concatenate by an logical AND.
+
+Some query-parameter could be specify multiple times within a single request. This array-query-parameter must be specified like https://delivery.offerista.com/companies?id=1&id=2&id=30. The parts of one array-query-parameter are concatenate by an logical OR.
+
+The web-service support both JSON and XML as output format. To specify the required output format you have to set the "Accept"-header (request). (example: "Accept: application/xml") The type of the output within the response is described by the "Content-Type"-header (response).
+
+Furthermore the web-service support GZIP-compression of the output. To enable the compression you have to set the "Accept-Encoding"-header (request). (example: "Accept-Encoding: gzip") The type of compression of the output within the response is described by the "Content-Encoding"-header (response).
+
+Caching
+A response from the web-service contains the HTTP-cache-header "Cache-Control: public" and "Cache-Control: max-age=xyz" and several application-specific "Vary"-header to support HTTP-caching.
+
+To optimize the caching hit rate the following points should be implemented:
+
+round the values of latitude and longitude to 4 decimal places
+order the parameters of the requests alphabetically
+PUT- and POST-Requests
+PUT- and POST-requests create and modify single or multiple resources. The web-service support both JSON and XML as input format. You have to specify which input format you would take. To do so, you have to set the "Content-Type"-header (request). (example "Content-Type: application/xml")
+
+Overall Status-Codes
+HTTP Status Code	Description
+401 Unauthorized	The server failed to authenticate the request.
+404 Not Found	The resource does not exists.
+405 Method Not Allowed	The HTTP method is not allowed.
+415 Unsupported Media Type	The media type of the request is invalid or unsupported.
+500 Internal Server Error	An internal server error occurred.
+503 Service Unavailable	The service is temporarily not available.
+Images
+The web-service only delivers meta-information over an available image. You have to load this image by yourself from the images-management-system (IMS). The IMS is accessible via http and https. The url is build by the following parts:
+
+http|https://{url}/[seo-text:]{id}_<{width}*n>x<{height}*n>[_fill<RRGGBB>][_mono][_nd].{type}
+pattern	meaning
+{value}	meta-information delivered by the web-service
+value1|value2	alternatives
+[value]	optional
+<value>	variable value
+valuen	multiple of value
+Scaling:
+To scale an image:
+Calculate the scale factor based on the original height and width. Both dimensions you will receive from the api response. (see below)
+Multiply the desired dimension (height or width) with the scale Factor to get the other dimension. (tolerance range is plus/minus one pixel)
+The IMS-request will end up in a BadRequest, if the relation between height and width is not in the tolerance range and there is no "_fill" parameter.
+Image Format
+The provided image type (e.g., .webp in the example below) is just an example. WebP format is provided by default, but you are free to request images in any of the following formats, based on your needs:
+
+webp
+jpg
+png
+Specify your desired format by changing the file extension in the URL (e.g., .webp, .jpg, .png).
+
+_nd Flag
+You can use the _nd flag in the URL to enhance image quality:
+
+For WebP images, the _nd flag will enable lossless compression.
+For JPEG images, the _nd flag will increase quality by applying a lower compression rate.
+Using the metadata from the example below, an IMS URL with the _nd flag enabled could look like this:
+
+https://media.marktjagd.com/1_425x255_fillFFFFFF_nd.webp
+Example:
+You can create this valid IMS-url, if you deliver the following image-meta-information from the web-service :
+
+https://media.marktjagd.com/1_425x255_fillFFFFFF.webp
+<image>
+  <url>media.marktjagd.com</url>
+  <id>1</id>
+  <width>500</width>
+  <height>300</height>
+  <type>webp</type>
+</image>
+Intelligent Radius
+When you request industries, companies, stores and offers you should use our intelligent radius by omitting the explicit radius. With the intelligent radius you can support use cases like: The user finds offers of furniture stores within a radius of 50 km and offers of discounter within a radius of 10 km. The radius is specific for each industry or company.
+
+Explicit radius: /stores?geo=51.9542,13.1234,100
+Intelligent radius: /stores?geo=51.9542,13.1234
+
+Search
+If the request contains at least one of the following parameter, the default sort order change to "relevance,desc":
+
+search
+related_product_id
+related_brochure_id
+Tracking
+Using the /trackings endpoint is DEPRECATED - Please use our tracking-pipeline to send trackings. The pipeline is available under https://tracking.offerista.com. The documentation you can find under https://tracking.offerista.com/documentation.html. Your credentials are the same as for this API.
+
+The detailed tracking documentation is available in:
+
+english
+german
+Language
+To specify the desired content language use the "Accept-Language" header. This header should contain a language-tag that is conform to RFC 1766.
+
+Resolve IP-address
+To resolve an IP-address to a geo-coordinate you should use the resource location. The resource supports requests via POST and GET. If you use the POST method, you send the IP-address "application/x-www-form-urlencoded" encoded within the body, e.g. "ip=192.168.0.1". If you use the GET method, the client IP-address will be used to get the right location. If the process was successful you receive a location object with latitude and longitude (status code: 200 OK). Otherwise the status code 404 NotFound will be returned.
+
+Feature Toggles
+Features that are controlled by clients can be enabled by using the HTTP-header Active-Features.
+
+Trackingpixel
+The trackingpixel of the customer must be implemented in addition to the Offerista tracking. The customer checks the Offerista tracking by the number of trackingpixel requests. To implement the trackingpixel correctly the following points are important:
+
+Currently the trackingpixel don't show to which Offerista tracking action they belong to. So at this time the trackingpixel must be called at the same time as the click tracking is sent.
+Every object can have multiple trackingpixel. All trackingpixel must be called.
+The integration of the trackingpixel depends on the kind of the integration:
+A web integration must integrate the trackingpixel within a image tag.
+An app integration must call the URL of the trackingpixel by a HTTP-GET request.
+Trackingpixel have to be called by the client. A server side call would result into multiple trackingpixel request from the same ip-address or from a little range of ip-addresses.
+Trackingpixel include the variable %%CACHEBUSTER%%. The variable has to be replaced by a unique value related to the time. For example the unixtimestamp. To avoid request failures the value of the variable should not include special signs. The cachebuster should avoid a client side caching.
+Within an app integration the HTTP header User-Agent must be set correctly. To circumvent filtering by certain blacklists like the "IAB spiders & bots list" used by some customers (https://www.iab.com/guidelines/iab-abc-international-spiders-bots-list/), the header value must fulfill the following criteria:
+it must contain the particular clients name and version (e.g. marktjagd/9.1)
+it must not contain the name of HTTP clients like e.g. okhttp
+The folowing example shows how the tracking pixel looks like: "http://trackingpixel.de/example.gif?cache=%%CACHEBUSTER%%"
+Impression Trackers
+Customer-provided tracking URLs can be included via the impression_trackers field. These trackers must be triggered in addition to the existing Offerista tracking and are used by the customer to validate impressions through their own systems.
+
+Note on Similarities and Differences with trackingpixel
+Similarities:
+
+Both trackingpixel and impression_trackers are used for customer-side validation of user actions (e.g., views or clicks).
+They require client-side triggering, either via image tag in HTML or HTTP-GET request, depending on whether it's a web or app integration.
+They always include the placeholder %%CACHEBUSTER%%, which must be replaced on the client-side with a unique, timestamp-like value to prevent caching.
+They support multiple URLs, all of which must be called.
+For both fields, if no values are present, the field will be omitted entirely from the API response (i.e., the field will not appear with an empty list).
+Differences:
+
+trackingpixel is typically associated with click tracking and is called at the moment of the click, whereas impression_trackers are designed for view-based tracking and are called when the brochure or content is displayed.
+trackingpixel can be defined on all offer types (products and brochures), while impression_trackers can only be defined on brochure-type offers.
+Example impression tracker URL: https://analytics.example.org/pixel.gif?ref=brochure123&cache=%%CACHEBUSTER%%
+Resources
+There is a WADL document available that describes the resources API.
+
+path	methods	description
+/cities
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple cities that matches several parameter.
+
+/cities/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific city.
+
+/companies
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple companies that matches several parameter.
+
+/companies/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific company.
+
+/companies/{id}/top-offer
+GET
+An endpoint of the web-service, that manages single-requests to retrieve the top offer for a specific company.
+
+The system calculates the top-offer as follows:
+
+Regular: offer of the company
+Fallback1: offer of the company with unlimited radius
+Fallback2: offer of the industry
+Fallback3: offer of the industry with unlimited radius
+Fallback4: offer overall
+Fallback5: offer overall with unlimited radius
+The results of the individual cases are sorted as follows:
+
+favored first
+brochures first
+leaflets first
+user-language first
+random
+/counties
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple counties that matches several parameter.
+
+/counties/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific county.
+
+/industries
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple industries that matches several parameter.
+
+/industries/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific industry.
+
+/keywords
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple keywords that matches several parameter.
+
+/keywords/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific keyword.
+
+/location
+GET POST
+ 
+/offers
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple offers that matches several parameter.
+
+/offers/brochures/redirect
+GET
+An usecase specific endpoint to receive a brochure for the redirect usecase.
+
+The desired brochure is determined by the following fallback scenarios:
+
+   0. If a brochureId was sent and the brochure exists it will be returned, independent from the other parameters.
+   1. If a companyId was sent and case 0 did not returned a brochure and a brochure of the company exists
+      (this also depends on the geo parameter) this brochure will be returned. In the case more than one brochure
+      exists, the first depending on sort by "popularity, desc" will be taken.
+   2. If a companyId was sent and case 0 and case 1 did not returned a brochure and a brochure of the industry of
+      the company exists (this also depends on the geo parameter) this brochure will be returned. In the case more
+      than one brochure exists, the first depending on sort by "popularity, desc" will be taken.
+   3. If no brochure was returned by the previous cases and at least brochure exists (this also depends on the geo
+      parameter) this brochure will be returned. In the case more than one brochure exists, the first depending
+      on sort by "popularity, desc" will be taken.
+   
+If you send a geo parameter and add the "*" as radius the desired brochure three additional fallback scenarios are executed:
+
+   1.1 If a companyId was sent and case 0 and case 1 did not returned a brochure and a brochure of the company
+       exists, but not within the visibility-radius of the user this brochure will be returned. In the case more
+       than one brochure exists, the first depending on sort by "popularity, desc" will be
+       taken.
+   2.1 If a companyId was sent and case 0, 1, 1.1 and 2 did not returned a brochure and a brochure of the
+       industry of the company exists, but not within the visibility-radius of the user this brochure will be
+       returned. In the case more than one brochure exists, the first depending on sort by "popularity, desc" will be taken.
+   3.1 If no brochure was returned by the previous cases and at least brochure exists, but not within the
+       visibility-radius of the user this brochure will be returned. In the case more than one brochure exists,
+       the first depending on sort by "popularity, desc" will be taken.
+   
+/offers/brochures/{brochure_id}/related/offers
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple offers that are related to the brochure identified by the brochure_id path parameter.
+
+/offers/brochures/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific brochure - either current or expired. Future brochures can be retrieved by using the parameter 'with_future_content' if given channel allows this feature.
+
+/offers/discovers/{discover_id}/products
+GET
+An endpoint of the web-service, that manages list-requests to retrieve products of a discover with given ID. List of discover products is the same for all layout versions.
+
+/offers/expired
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple expired offers that matches several parameter. Default sort-order: visible_from->desc
+
+/offers/products/expired/stream
+GET
+An endpoint of the web-service, that manages requests to retrieve a stream of all expired products. Default sort-order: visible_from->desc
+
+/offers/products/stream
+GET
+An endpoint of the web-service, that manages requests to retrieve a stream of all active products. Default sort-order: popularity->desc
+
+/offers/products/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific product.
+
+/offers/products/{product_id}/related/offers
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple offers that are related to the product identified by the product_id path parameter.
+
+/offers/products/{product_id}/successor
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a successor for a specific product.
+
+/offers/top
+GET
+An endpoint of the web-service, that manages single-requests to retrieve the top offer for a specific company and a specific booking.
+
+The system calculates the top-offer as follows:
+
+Regular: offer of the booking and company
+Fallback1: offer of the booking and company with unlimited radius
+Fallback2: offer of the company
+Fallback3: offer of the company with unlimited radius
+Fallback4: offer of the industry
+Fallback5: offer of the industry with unlimited radius
+Fallback6: offer overall
+Fallback7: offer overall with unlimited radius
+The results of the individual cases are sorted as follows:
+
+brochures first
+leaflets first
+user-language first
+random
+/stores
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple stores that matches several parameter.
+
+/stores/stream
+GET
+An endpoint of the web-service, that manages requests to retrieve a stream of all stores. Default sort-order: title->asc
+
+/stores/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific store.
+
+/storeusermappings
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple store-user-mappings that matches several parameters. A store-user-mapping maps a store to a user that favored the store.
+
+/suggestions
+GET
+ 
+/trackings
+POST
+DEPRECATED - Please use our tracking-pipeline to send trackings. The pipeline is available under https://tracking.offerista.com.
+
+An endpoint of the web-service, that manages requests to create a single tracking.
+
+/trackings/collection
+POST
+DEPRECATED - Please use our tracking-pipeline to send trackings. The pipeline is available under https://tracking.offerista.com.
+
+An endpoint of the web-service, that manages requests to create a list of trackings.
+
+Example XML:
+
+ <trackings>
+   <tracking>
+     ...
+   </tracking>
+   ...
+ </trackings>
+ 
+Example JSON:
+
+ [
+   {
+     "resource":"tracking",
+     ...
+   }
+   ...
+ ]
+ 
+/trackings/{id}
+PUT
+DEPRECATED - Please use our tracking-pipeline to send trackings. The pipeline is available under https://tracking.offerista.com.
+
+An endpoint of the web-service, that manages requests to update a single tracking.
+
+/usecases/brochure_pageflip
+GET
+An usecase specific endpoint to receive a brochure for the pageflip. The response includes the brochure with next store and company information and a list of related offers.
+
+/users
+POST
+An endpoint of the web-service, that manages requests to create a single user.
+
+/users/{user_uuid}
+DELETE GET
+Handles all REST-requests for users.
+/users/{user_uuid}/favorites
+GET POST
+Handles all REST-requests for users.
+/users/{user_uuid}/favorites/{favorite_id}
+DELETE GET
+Handles all REST-requests for users.
+/zipcodes
+GET
+An endpoint of the web-service, that manages list-requests to retrieve multiple zipcodes that matches several parameter.
+
+/zipcodes/{id}
+GET
+An endpoint of the web-service, that manages single-requests to retrieve a specific zipcode.
+
+Data Types
+XML
+Default Namespace (schema)
+type	description
+abstractDTO	
+linkDTOType	
+abstractListDTO	
+abstractResultDTO	
+addressDTOType	Represents the address resource.
+brandDTOType	This resource describes a single brand.
+brochureDTOType	This resource describes a single brochure.
+Example XML:
+ <brochure id="1" href="https://delivery.offerista.com/offers/brochures/1" >
+   <company id="1" href="https://delivery.offerista.com/companies/1" />
+   <tracking_bugs>
+     <tracking_bug> http://tracking.bug.de/example.gif?cache=%%CACHEBUSTER%%</tracking_bug>
+   </tracking_bugs>
+   <impression_trackers>
+     <impression_tracker> https://tracker.adnetwork.com/impression?cache=%%CACHEBUSTER%%</impression_tracker>
+   </impression_trackers>
+   <number>2343sdf545</number>
+   <title>Test-Prospekt</title>
+   <valid_from>2012-08-03T14:52:10+01:00</valid_from>
+   <valid_to>2012-08-13T14:52:10+01:00</valid_to>
+   <keywords>
+     <keyword>Test-Keyword</keyword>
+     ...
+   </keywords>
+   <brands>
+     <brand>Test-Marke</brand>
+     ...
+   </brands>
+   <logo>
+     <url>media.marktjagd.com</url>
+     <id>2</id>
+     <width>500</width>
+     <height>300</height>
+     <type>webp</type>
+   </logo>
+   <store>
+     ...
+   </store>
+   <pages total="10" hits="2">
+     <page number="4" hit="true">
+       <text>Text der Prospektseite</text>
+       <links>
+         <link>
+           <url> http://www.test.de</url>
+           <top>0.56</top>
+           <left>0.43</left>
+           <width>0.13</width>
+           <height>0.21</height>
+         </link>
+       </links>
+       <image>
+         <url>media.marktjagd.com</url>
+         <id>1</id>
+          <width>500</width>
+         <height>300</height>
+         <type>webp</type>
+       </image>
+     </page>
+   </pages>
+   <gender>female</gender>
+   <age_range>12-30</age_range>
+ </brochure>
+ 
+Example JSON:
+ {
+   "resource": "brochure",
+   "id": 1,
+   "href": "https://delivery.offerista.com/offers/brochures/1",
+   "company":
+   {
+     "resource": "company",
+     "href": "https://delivery.offerista.com/companies/1",
+     "id": 1
+   },
+   "trackingBugs":
+   [
+     "http://tracking.bug.de/example.gif?cache=%%CACHEBUSTER%%"
+   ],
+   "impressionTrackers":
+   [
+     "https://tracker.adnetwork.com/impression?cache=%%CACHEBUSTER%%"
+   ],
+   "number": "2343sdf545",
+   "title": "Test-Prospekt",
+   "validFrom": "2012-08-03T14:52:10+01:00",
+   "validTo": "2012-08-13T14:52:10+01:00",
+   "keywords":
+   [
+     "Test-Keyword"
+   ],
+   "brands":
+   [
+     "Test-Marke"
+   ],
+   "logo":
+   {
+     "url": "media.marktjagd.com",
+     "id": 2,
+     "width": 500,
+     "height": 300,
+     "type": "webp"
+   },
+   "store":
+   {
+     "resource": "store",
+     ...
+   },
+   "pageResult":
+   {
+     "total": 10,
+     "hits": 2,
+     "pages":
+     [
+       {
+         "number": 4,
+         "text": Text der Propspektseite,
+         "links":
+         [
+           {
+             "url": "http://www.test.de",
+             "top": 0.56,
+             "left": 0.43,
+             "width": 0.13,
+             "height": 0.21,
+           }
+         ],
+         "image":
+         {
+           "url": "media.marktjagd.com",
+           "id": 1,
+           "width": 500,
+           "height": 300,
+           "type": "webp"
+         }
+       }
+     ]
+   },
+   "gender": "female",
+   "age_range": "12-30"
+ }
+ 
+brochurePageflipDTOType	This resource describes the result of a offer-list-request.
+Example XML
+ <brochure_pageflip>
+   <brochure id="1" href="...">
+     ...
+   </brochure>
+   <related_offers href="...">
+     <product id="1" href="...">
+       ...
+     </product>
+     <brochure id="2" href="...">
+       ...
+     </brochure>
+     ...
+   </related_offers>
+ </brochure_pageflip>
+ 
+Example JSON
+ {
+   "resource":"brochurepageflip",
+   "brochure":
+   {
+     "resource": "brochure",
+     "id": "1",
+     "href": "...",
+     ...
+     },
+   },
+   "relatedOffers":
+   {
+     "resource": "relatedoffers",
+     "href": "...",
+     "offers":
+     [
+       {
+         "resource": "product",
+         "id": "1",
+         "href": "...",
+         ...
+       },
+       {
+         "resource": "brochure",
+         "id": "2",
+         "href": "...",
+         ...
+       },
+       ...
+     ]
+   }
+ }
+ 
+BrochureType	Describe the brochure types.
+cityDTOType	This resource describes a single city.
+Example XML:
+   <city id="1" distance="1.23" href="https://delivery.offerista.com/cities/1" />
+     <title>Dresden</title>
+     <unique_title>dresden</unique_title>
+     <latitude>51.0492</latitude>
+     <longitude>13.7383</longitude>
+     <county id="1" href="https://delivery.offerista.com/counties/1" />
+   </city>
+ 
+Example JSON:
+   {
+     "resource": "city",
+     "id": 1,
+     "href": "https://delivery.offerista.com/cities/1",
+     "distance"="1.23",
+     "title": "Dresden",
+     "uniqueTitle": "dresden",
+     "latitude": "51.0492",
+     "longitude": "13.7383"
+     "county": {
+       "resource": "county",
+       "id":1,
+       "href:"https://delivery.offerista.com/counties/1"
+     }
+   }
+ 
+cityLinkDTOType	This resource describes a city link.
+cityListDTOType	This resource describes a list of cities.
+cityResultDTOType	This resource describes the result of a city-list-request.
+Example XML
+ <city_result>
+   <cities total="20">
+     <city id="1">
+       ...
+     </city>
+     ...
+   </cities>
+ </city_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 20,
+     "cities":
+     [
+       {
+         "resource": "city",
+         ...
+       }
+       ...
+     ]
+   }
+ }
+ 
+companyDTOType	This resource describes a simple company.
+Example XML:
+   <company id="1" href="https://delivery.offerista.com/companies/1" />
+     <title>Offerista Group GmbH</title>
+     <logo> <!-- optional -->
+       <url>media.marktjagd.com</url>
+       <id>1</id>
+       <width>500</width>
+       <height>300</height>
+       <type>webp</type>
+     </logo>
+   </company>
+ 
+Example JSON:
+    {
+      "resource": "company",
+      "id": 1,
+      "href": "https://delivery.offerista.com/companies/1",
+      "title": "Offerista Group GmbH"
+      "logo":
+      {
+        "url": "media.marktjagd.com",
+        "id": 1,
+        "width": 500,
+        "height": 300,
+        "type": "webp"
+      },
+    },
+ 
+companyDetailDTOType	This resource describes a detail company.
+Example XML:
+   <company id="1" has_offers="true" href="https://delivery.offerista.com/companies/1" />
+     <industry id="1" href="http://delivery.offerista.com/industries/1" />
+     <title>Offerista Group GmbH</title>
+     <homepage> http://www.offerista.com</homepage>
+     <email>contact@offerista.com</email>
+     <phone_type>0351</phone_type>
+     <phone>0351-4188940</phone>
+     <fax_type>0351</fax_type>
+     <fax>0351-41889499</fax>
+     <facebook_url> https://de-de.facebook.com/Test</facebook_url>
+     <google_plus_url> https://plus.google.com/Test</google_plus_url>
+     <price_level>1</price_level>
+     <logo> <!-- optional -->
+       <url>media.marktjagd.com</url>
+       <id>1</id>
+       <width>500</width>
+       <height>300</height>
+       <type>webp</type>
+     </logo>
+     <keywords>
+       <keyword>Shopping</keyword>
+       ...
+     </keywords>
+   </company>
+ 
+Example JSON:
+    {
+      "resource": "company",
+      "id": 1,
+      "href": "https://delivery.offerista.com/companies/1",
+      "hasOffers": true,
+      "industry":
+      {
+        "resource": "industry",
+        "href": "https://delivery.offerista.com/industries/1",
+        "id": 1
+      },
+      "title": "Offerista Group GmbH"
+      "homepage": "http://www.offerista.com",
+      "email": "contact@offerista.com",
+      "phone_type": "0351",
+      "phone": "0351-4188940",
+      "fax_type": "0351",
+      "fax": "0351-41889499",
+      "facebook_url": "https://de-de.facebook.com/Test",
+      "google_plus_url": "https://plus.google.com/Test",
+      "price_level": "1",
+      "logo":
+      {
+        "url": "media.marktjagd.com",
+        "id": 1,
+        "width": 500,
+        "height": 300,
+        "type": "webp"
+      },
+      "keywords":
+      [
+        "Shopping"
+      ]
+    },
+ 
+companyLinkDTOType	This resource describes a company link. If the resource supports an option to load the additional informations the link can be extended.
+companyListDTOType	This resource describes a list of companies.
+companyResultDTOType	This resource describes the result of a company-list-request.
+Example XML
+ <company_result>
+   <companies total="150">
+     <company id="1">
+       ...
+     </company>
+     ...
+   </companies>
+   <!-- possible facets -->
+   <industries>
+     <industry id="2" hits="10">
+       ...
+     </industry>
+     ...
+   </industries>
+ </company_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 150,
+     "companies":
+     [
+       {
+         "resource": "company",
+         ...
+       }
+       ...
+     ]
+   }
+   "industries":
+   [
+     {
+       "resource": "industry",
+       "id": 2,
+       "hits": 10,
+       ...
+     }
+     ...
+   ]
+ }
+ 
+countyDTOType	This resource describes a single county.
+Example XML:
+ <county id="1" distance="1.23" href="https://delivery.offerista.com/counties/1" />
+   <title>Vogtlandkreis</title>
+   <latitude>54.2193</latitude>
+   <longitude>9.6961</longitude>
+ </county>
+ 
+Example JSON:
+ {
+   "resource": "county",
+   "id": 1,
+   "href": "https://delivery.offerista.com/counties/1",
+   "title": "Vogtlandkreis",
+   "latitude": "54.2193",
+   "longitude": "9.6961"
+ }
+ 
+countyLinkDTOType	This resource describes a county link.
+countyListDTOType	This resource describes a list of counties.
+countyResultDTOType	This resource describes the result of a county-list-request.
+Example XML
+ <county_result>
+   <counties total="20">
+     <county id="1">
+       ...
+     </county>
+     ...
+   </counties>
+ </county_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 20,
+     "counties":
+     [
+       {
+         "resource": "county",
+         ...
+       }
+       ...
+     ]
+   }
+ }
+ 
+errorDTOType	This resource describes a single error.
+Example XML:
+ <error>
+   <code>ResourceNotFound</code>
+   <messages>
+     <message>The specified resource does not exist.</message>
+   </messages>
+ </error>
+ 
+Example JSON:
+ {
+   "resource": "error",
+   "code": "ResourceNotFound",
+   "messages":
+   [
+     "The specified resource does not exist."
+   ]
+ }
+ 
+favoriteDTOType	This resource describes a single favorite.
+Example XML:
+ <favorite id="0cd99ed5-fdea-4596-adac-870ffb64a85c" href="https://delivery.offerista.com/users/1/favorites/0cd99ed5-fdea-4596-adac-870ffb64a85c" >
+   <user id="1" href="http://delivery.offerista.com/users/1" />
+   <store_id>1</store_id>
+   <latitude>48.7456</latitude>
+   <longitude>9.1642</longitude>
+ </favorite>
+ 
+Example JSON:
+ {
+   "resource":"favorite",
+   "id": "0cd99ed5-fdea-4596-adac-870ffb64a85c",
+   "href": "https://delivery.offerista.com/users/1/favorites/0cd99ed5-fdea-4596-adac-870ffb64a85c",
+   "user":
+   {
+     "resource": "user",
+     "href": "https://delivery.offerista.com/users/1",
+     "id": 1
+   },
+   "storeId": 1,
+   "latitude": 48.7456,
+   "longitude":9.1642,
+ }
+ 
+favoriteListDTOType	This resource describes a list of favorites.
+favoriteResultDTOType	This resource describes the result of a favorite-list-request.
+Example XML
+ <favorite_result>
+   <favorites total="20">
+     <favorite id="0cd99ed5-fdea-4596-adac-870ffb64a85c">
+       ...
+     </favorite>
+     ...
+   </favorites>
+ </favorite_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 20,
+     "favorites":
+     [
+       {
+         "resource": "favorite",
+         ...
+       }
+       ...
+     ]
+   }
+ }
+ 
+hourDTOType	This resource describes a single hour.
+imageDTOType	This resource describes a single image.
+industryDTOType	This resource describes a single industry.
+Example XML:
+ <industry id="1" has_offers="true" href="https://delivery.offerista.com/industries/1" >
+   <title>Supermarkt</title>
+ </industry>
+ 
+Example JSON:
+ {
+   "resource": "industry",
+   "id": 1,
+   "href": "https://delivery.offerista.com/industries/1",
+   "hasOffers": true,
+   "title": "Supermarkt"
+ }
+ 
+industryLinkDTOType	This resource describes a industry link.
+industryListDTOType	This resource describes a list of industries.
+industryResultDTOType	This resource describes the result of a industry-list-request.
+Example XML
+ <industry_result>
+   <industries total="5">
+     <industry id="1">
+       ...
+     </industry>
+     ...
+   </industries>
+ </industry_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 5,
+     "industries":
+     [
+       {
+         "resource": "industry",
+         ...
+       }
+       ...
+     ]
+   }
+ }
+ 
+keywordDTOType	This resource describes a single keyword.
+Example XML:
+ <keyword id="1" href="https://delivery.offerista.com/keywords/1" >
+   <title>Kiwi</title>
+   <is_brand>false</is_brand>
+ </keyword>
+ 
+Example JSON:
+ {
+   "resource": "keyword",
+   "id": 1,
+   "href": "https://delivery.offerista.com/keywords/1",
+   "title": "Kiwi"
+ }
+ 
+keywordLinkDTOType	This resource describes a keyword link.
+keywordListDTOType	This resource describes a list of keywords.
+keywordResultDTOType	This resource describes the result of a keyword-list-request.
+Example XML
+ <keyword_result>
+   <keywords total="50">
+     <keyword id="1">
+       ...
+     </keyword>
+     ...
+   </keywords>
+ </keyword_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 50,
+     "keywords":
+     [
+       {
+         "resource": "keyword",
+         ...
+       }
+       ...
+     ]
+   }
+ }
+ 
+locationDTOType	A Location.
+logoDTOType	This resource describes a single logo.
+offerDTOType	This resource is a template for specific product and brochure.
+offerListDTOType	This resource describes a list of offers.
+offerResultDTOType	This resource describes the result of a offer-list-request.
+Example XML
+ <offer_result>
+   <offers total="234">
+     <product id="1">
+       ...
+     </product>
+     <brochure id="1">
+       ...
+     </brochure>
+     ...
+   </offers>
+   <!-- possible facets -->
+   <companies>
+     <company id="1" hits="25">
+       ...
+     </company>
+     ...
+   </companies>
+   <industries>
+     <industry id="1" hits="34">
+       ...
+     </industry>
+     ...
+   </industries>
+   <types>
+     <type hits="10">
+       <value>product</value>
+     </type>
+     ...
+   </types>
+   <brands>
+     <brand hits="12">
+       <title>Acer</title>
+     </brand>
+     ...
+   </brands>
+ </offer_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 234,
+     "offers":
+     [
+       {
+         "resource": "product",
+         ...
+       },
+       {
+         "resource": "brochure",
+         ...
+       },
+       ...
+     ]
+   },
+   "companies":
+   [
+     {
+       "resource": "company",
+       "id": 1,
+       "hits": 25,
+       ...
+     },
+     ...
+   ],
+   "industries":
+   [
+     {
+       "resource": "industry",
+       "id": 1,
+       "hits": 34,
+       ...
+     },
+     ...
+   ],
+   "types":
+   [
+     {
+       "hits": 10,
+       "value": "product"
+     },
+     ...
+   ],
+   "brands":
+   [
+     {
+       "hits": 12,
+       "title": "Acer"
+     },
+     ...
+   ]
+ }
+ 
+pageDTOType	This resource describes a single page.
+pageLinkDTOType	This resource describes a single page link. The values of top, left, width and height are percentages and they are describing a rectangle. The whole rectangle can be used to place a clickable item. Our clients place it in the middle of the rectangle. Example: https://www.offerista.com/ 0.0207 0.029 0.9396 0.4415 To find the right position for the clickable item you have to calculate 2.07% from the top and 2.90% from the left. This is the start point to span up the rectangle. The width of the rectangle is 93.96% and the height is 44.15%.
+pageListDTOType	This resource describes a list of pages.
+productDTOType	This resource describes a single product.
+Example XML:
+ <product id="1" href="https://delivery.offerista.com/offers/products/1" >
+   <company id="1" href="https://delivery.offerista.com/companies/1" />
+   <tracking_bugs>
+     <tracking_bug> http://tracking.bug.de/example.gif?cache=%%CACHEBUSTER%%</tracking_bug>
+   </tracking_bugs>
+   <number>0815xyz</number>
+   <title>Muster Produkt</title>
+   <valid_from>2012-08-03T14:52:10+01:00</valid_from>
+   <valid_to>2012-08-13T14:52:10+01:00</valid_to>
+   <keywords>
+     <keyword>Shopping</keyword>
+     ...
+   </keywords>
+   <brands>
+     <brand>Muster Marke</brand>
+     ...
+   </brands>
+   <logo>
+     <url>media.marktjagd.com</url>
+     <id>1</id>
+     <width>500</width>
+     <height>300</height>
+     <type>webp</type>
+   </logo>
+   <store>
+     ...
+   </store>
+   <description>Das ist eine Musterbeschreibung</description>
+   <ean>000000000000000000</ean>
+   <price>1.99</price>
+   <price_variable>true</price_variable>
+   <shipping>5,99€, ab einem Bestellwert von 10€ keine Versandkosten</shipping>
+   <manufacturer_price>1.99</manufacturer_price>
+   <manufacturer_number>xyz</manufacturer_number>
+   <url>www.musterseite.de/product/0815xyz</url>
+   <size>50 cm</size>
+   <color>Grün</color>
+   <amount>24 Stück</amount>
+   <images>
+     <image>
+       <url>media.marktjagd.com</url>
+       <id>2</id>
+       <width>500</width>
+       <height>300</height>
+       <type>webp</type>
+     </image>
+     ...
+   </images>
+   <variety>single</variety>
+ </product>
+ 
+Example JSON:
+ {
+   "resource": "product",
+   "id": 1,
+   "href": "https://delivery.offerista.com/offers/products/1",
+   "company":
+   {
+     "resource": "company",
+     "href": "http://delivery.offerista.com/companies/1",
+     "id": 1
+   },
+   "trackingBugs":
+   [
+     "http://tracking.bug.de/example.gif?cache=%%CACHEBUSTER%%"
+   ],
+   "number": "0815xyz",
+   "title": "Muster Produkt",
+   "validFrom": "2012-08-03T14:52:10+01:00",
+   "validTo": "2012-08-13T14:52:10+01:00",
+   "keywords":
+   [
+     "Shopping"
+   ],
+   "brands":
+   [
+     "Muster Marke"
+   ],
+   "logo":
+   {
+     "url": "media.testserver.de",
+     "id": 1,
+     "width": 500,
+     "height": 300,
+     "type": "webp"
+   },
+   "store":
+   {
+     "resource": "store",
+     ...
+   },
+   "description": "Das ist eine Musterbeschreibung",
+   "ean": "000000000000000000",
+   "price": 1.99,
+   "priceVariable": true,
+   "shipping": "5,99€, ab einem Bestellwert von 10€ keine Versandkosten",
+   "manufacturerPrice": 1.99,
+   "manufacturerNumber": "xyz",
+   "url": "www.musterseite.de/product/0815xyz",
+   "size": "50 cm",
+   "color": "Grün",
+   "amount": "24 Stück",
+   "images":
+   [
+     {
+       "url": "media.marktjagd.de",
+       "id": 2,
+       "width": 500,
+       "height": 300,
+       "type": "webp"
+     }
+   ],
+   "variety": "single",
+   "additionalProperties":
+   {
+     "pricePerUnit": "4,99€ pro 100g",
+     "energyClass": "AAA",
+     "isExpensive": false
+   }
+ }
+ 
+relatedOffersDTOType	This resource describes a list of related offers.
+screenType	This resource describes the screen of the user.
+simpleBrochureDTOType	
+storeDTOType	This resource describes a single store.
+Example XML:
+ <store id="1" distance="2.66" has_products="true" product_count="12" has_brochures="false" brochure_count="2" href="https://delivery.offerista.com/stores/1" />
+   <company id="1" href="https://delivery.offerista.com/companies/1" />
+   <industry id="1" href="https://delivery.offerista.com/industries/1" />
+   <number>0815xyz</number>
+   <title>Offerista Group GmbH</title>
+   <subtitle>Standort Dresden</subtitle>
+   <description>The Local Reach Group</description>
+   <address>
+     <street>Schützenplatz</street>
+     <street_number>14</street_number>
+     <city>Dresden</city>
+     <zipcode>01067</zipcode>
+   </address>
+   <street>Schützenplatz</street><!-- DEPRECATED (Deprecated as of version 4.2. Will
+ be removed as of version 4.10.) -->
+   <street_number>14</street_number><!-- DEPRECATED (Deprecated as of version 4.2. Will
+ be removed as of version 4.10.) -->
+   <city>Dresden</city><!-- DEPRECATED (Deprecated as of version 4.2. Will
+ be removed as of version 4.10.) -->
+   <zipcode>01067</zipcode><!-- DEPRECATED (Deprecated as of version 4.2. Will
+ be removed as of version 4.10.) -->
+   <longitude>13.0000</longitude>
+   <latitude>51.0000</latitude>
+   <payment>Bar, EC Karte, Kreditkarte</payment>
+   <homepage> http://www.offerista.com</homepage>
+   <email>contact@offerista.com</email>
+   <phone_type>0351</phone_type>
+   <phone>0351-4188940</phone>
+   <fax_type>0351</fax_type>
+   <fax>0351-41889499</fax>
+   <parking>24 Parkplätze</parking>
+   <barrier_free>true</barrier_free>
+   <bonus_card>Payback</bonus_card>
+   <section>Fleischtheke</section>
+   <service>Einpackservice</service>
+   <toilet>true</toilet>
+   <hours>
+     <hour>
+       <weekday>1</day>
+       <times>
+         <time>
+           <from>08:00</from>
+           <to>20:00</to>
+         <time>
+       <times>
+     </hour>
+   </hours>
+   <hours_text>Hinweistext zu den Öffnungszeiten</hours_text>
+   <logo>
+     <url>media.marktjagd.com</url>
+     <id>1</id>
+     <width>500</width>
+     <height>300</height>
+     <type>webp</type>
+   </logo>
+ </store>
+ 
+Example JSON:
+ {
+   "resource": "store",
+   "id": 1,
+   "href": "https://delivery.offerista.com/stores/1",
+   "distance": "2.66",
+   "hasProducts": true,
+   "productCount": 12,
+   "hasBrochures": false,
+   "brochureCount": 2,
+   "company":
+   {
+     "resource": "company",
+     "href": "https://delivery.offerista.com/companies/1",
+     "id": 1
+   },
+   "industry":
+   {
+     "resource": "industry",
+     "href": "https://delivery.offerista.com/industries/1",
+     "id": 1
+   },
+   "number": "0815xyz",
+   "title": "Offerista Group GmbH",
+   "subtitle": "Standort Dresden",
+   "description": "The Local Reach Group",
+   "address":
+   {
+     "street": "Schützenplatz",
+     "streetNumber": "14",
+     "city": "Dresden",
+     "zipcode": "01067",
+   },
+   "latitude": "51.0000",
+   "longitude": "13.0000",
+   "payment": "Bar, EC Karte, Kreditkarte",
+   "homepage": "http://www.offerista.com",
+   "email": "contact@offerista.com",
+   "phoneType": "0351",
+   "phone": "0351-4188940",
+   "faxType": "0351",
+   "fax": "0351-41889499",
+   "parking": "24 Parkplätze",
+   "barrierFree": true,
+   "bonusCard": "Payback",
+   "section": "Fleischtheke",
+   "service": "Einpackservice",
+   "toilet": true,
+   "hours":
+   [
+     {
+       "weekday": 1,
+       "times":
+       [
+         {
+           "from": "08:00",
+           "to": "20:00"
+         }
+       ]
+     }
+   ],
+   "hourText": "Hinweistext zu den Öffnungszeiten",
+   "logo":
+   {
+     "url": "media.marktjagd.com",
+     "id": 1,
+     "width": 500,
+     "height": 300,
+     "type": "webp"
+   }
+ }
+ 
+storeLinkDTOType	This resource describes a store link.
+storeListDTOType	This resource describes a list of stores.
+storeResultDTOType	This resource describes the result of a store-list-request.
+Example XML
+ <store_result>
+   <stores total="3456">
+     <store id="1">
+       ...
+     </store>
+     ...
+   </stores>
+ 
+   <!-- possible facets -->
+   <industries>
+     <industry id="1" hits="53">
+       ...
+     </industry>
+     ...
+   </industries>
+   <companies>
+     <company id="1" hits="53">
+       ...
+     </company>
+     ...
+   </companies>
+   <counties>
+     <county id="1" hits="33">
+       ...
+     </county>
+     ...
+   </counties>
+   <cities>
+     <city id="1" hits="33">
+       ...
+     </city>
+     ...
+   </cities>
+ </store_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 3456,
+     "stores":
+     [
+       {
+         "resource": "store",
+         ...
+       }
+       ...
+     ]
+   }
+   "industries":
+   [
+     {
+       "resource": "industry",
+       "id": 1,
+       "hits": 53,
+       ...
+     }
+     ...
+   ],
+   "companies":
+   [
+     {
+       "resource": "company",
+       "id": 1,
+       "hits": 53,
+       ...
+     }
+     ...
+   ],
+   "counties":
+   [
+     {
+       "resource": "county",
+       "id": 1,
+       "hits": 33,
+       ...
+     }
+     ...
+   ],
+   "cities":
+   [
+     {
+       "resource": "city",
+       "id": 1,
+       "hits": 33,
+       ...
+     }
+     ...
+   ]
+ }
+ 
+storeUserMappingDTOType	This resource describes a storeusermapping.
+storeUserMappingListDTOType	
+suggestionDTOType	This resource describes a single suggestion.
+Example XML:
+   <suggestion title="offerista group">
+     <industries>
+       <industry id="1" href="https://delivery.offerista.com/industries/1" >
+         <title>Supermarkt</title>
+       </industry>
+     </industries>
+   </suggestion>
+ 
+Example JSON:
+    {
+      "resource": "suggestion",
+      "title": "offerista group"
+      "industries":[
+        {
+        "resource": "industry",
+        "id": 1,
+        "href": "https://delivery.offerista.com/industries/1",
+        "title": "Supermarkt"
+        }
+      ]
+    },
+ 
+suggestionResultDTOType	This resource describes the result of a suggestion-list-request.
+Example XML
+ <suggestion_result>
+   <suggestions>
+     <suggestion title="..."/>
+     ...
+   </suggestions>
+   <companies>
+     <company id="1">
+       ...
+     </company>
+     ...
+   </companies>
+   <brochures>
+     <brochure id="1">
+       ...
+     </brochure>
+     ...
+   </brochures>
+ </suggestion_result>
+ 
+Example JSON
+ {
+   "suggestions":
+   [
+     {
+       "resource": "suggestion",
+       ...
+     }
+     ...
+   ]
+   "companies":
+   [
+     {
+       "resource": "company",
+       "id": 1,
+       ...
+     }
+     ...
+   ],
+   "brochures":
+   [
+     {
+       "resource": "brochure",
+       "id": 1,
+       ...
+     }
+     ...
+   ],
+ }
+ 
+timeDTOType	This resource describes a single time.
+trackingActionTypeType	Describe the various possibilities of tracking actions.
+trackingType	This resource describes a single tracking.
+Example XML:
+ <tracking>
+   <object>
+     <type>brochure</type>
+     <id>1</id>
+     <page>20</page>
+   </object>
+   <action>show</action>
+   <visitor_id>123rt456rtz78rtz9</visitor_id>
+   <latitude>48.7456</latitude>
+   <longitude>9.1642</longitude>
+   <screen>
+     <scale>2</scale>
+     <width>1200</width>
+     <height>800</height>
+   </screen>
+   <client>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66</client>
+   <variant>2</variant>
+   <referrer> https://www.google.de/#q=test</referrer>
+   <source> http://www.marktjagd.de/brochure/145</source>
+   <target>tel:1111-111111</target>
+   <duration>20</duration>
+ </tracking>
+ 
+Example JSON:
+ {
+   "resource":"tracking",
+   "object":
+   {
+     "type":"brochure",
+     "id":1,
+     "page":20
+   },
+   "action":"show",
+   "visitorId":"123rt456rtz78rtz9",
+   "latitude":48.7456,
+   "longitude":9.1642,
+   "screen":
+   {
+     "scale":2,
+     "width":1200,
+     "height":800
+   },
+   "client":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66",
+   "variant":"2",
+   "referrer":"https://www.google.de/#q=test",
+   "source":"http://www.marktjagd.de/brochure/145",
+   "target": "tel:1111-111111",
+   "duration": 20
+ }
+ 
+trackingObjectType	This resource collapse informations about a single tracking-object.
+trackingObjectTypeType	Describe the various possibilities of tracking objects.
+typeDTOType	This resource describes a single type.
+userDTOType	This resource describes a single user.
+Representation with userUuid
+Example XML:
+ <user user_uuid="550e8400-e29b-11d4-a716-446655440000" href="https://delivery.offerista.com/users/550e8400-e29b-11d4-a716-446655440000" >
+ </user>
+ 
+Example JSON:
+ {
+   "resource":"user",
+   "userUuid": "550e8400-e29b-11d4-a716-446655440000",
+   "href": "https://delivery.offerista.com/users/550e8400-e29b-11d4-a716-446655440000",
+ }
+ 
+userLinkDTOType	This resource describes a user link.
+zipcodeDTOType	This resource describes a single zipcode.
+Example XML:
+ <zipcode id="1" distance="1.23" href="https://delivery.offerista.com/zipcodes/1" />
+   <title>01187</title>
+   <latitude>51.0492</latitude>
+   <longitude>13.7383</longitude>
+ </zipcode>
+ 
+Example JSON:
+   {
+     "resource": "zipcode",
+     "id": 1,
+     "href": "https://delivery.offerista.com/zipcodes/1",
+     "distance"="1.23",
+     "title": "01187",
+     "latitude": "51.0492",
+     "longitude": "13.7383"
+   }
+ 
+zipcodeListDTOType	This resource describes a list of zipcodes.
+zipcodeResultDTOType	This resource describes the result of a zipcode-list-request.
+Example XML
+ <zipcode_result>
+   <zipcodes total="12">
+     <zipcode id="1">
+       ...
+     </zipcode>
+     ...
+   </zipcodes>
+ </zipcode_result>
+ 
+Example JSON
+ {
+   "result":
+   {
+     "total": 12,
+     "zipcodes":
+     [
+       {
+         "resource": "zipcode",
+         ...
+       }
+       ...
+     ]
+   }
+ }
+ 
+countryCode	
+Generated by Enunciate.

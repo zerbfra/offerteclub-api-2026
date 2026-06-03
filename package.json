@@ -12,7 +12,10 @@
     "format:check": "prettier --check src/",
     "docker:up": "docker compose up -d --build",
     "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f redis"
+    "docker:logs": "docker compose logs -f redis",
+    "shopfully:companies": "node scripts/shopfully-list-companies.mjs",
+    "shopfully:dump": "node scripts/shopfully-dump-brochures.mjs",
+    "shopfully:images": "node scripts/shopfully-download-images.mjs"
   },
   "engines": {
     "node": ">=20"
