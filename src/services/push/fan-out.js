@@ -187,10 +187,20 @@ const dispatchToUser = async ({
   post,
   type,
   payloadExcludeKeys,
+  seenTokens,
   log,
 }) => {
-  const tokens = await getUserDeviceTokens(firestore, uid);
-  if (tokens.length === 0) return [];
+  const allTokens = await getUserDeviceTokens(firestore, uid);
+  if (allTokens.length === 0) return { tickets: [], deduped: 0 };
+
+  // Dedup cross-uid: lo stesso Expo pushToken può essere registrato sotto più
+  // uid (account switch / reinstall senza cleanup del doc precedente). L'uid
+  // a priorità più alta viene processato prima (favorite_hit > price_drop >
+  // discount_threshold), quindi qui scartiamo i token già "vinti".
+  const tokens = allTokens.filter((t) => !seenTokens.has(t.token));
+  const deduped = allTokens.length - tokens.length;
+  if (tokens.length === 0) return { tickets: [], deduped };
+  for (const t of tokens) seenTokens.add(t.token);
 
   const { messages, mirror } = buildMessages({ tokens, postId, post, type, payloadExcludeKeys });
   const tickets = await sendBatch(expo, messages, log);
@@ -202,10 +212,13 @@ const dispatchToUser = async ({
   }
 
   const tokenByAddress = new Map(tokens.map((t) => [t.token, t]));
-  return tickets.map((entry) => ({
-    ...entry,
-    device: tokenByAddress.get(entry.message.to) || null,
-  }));
+  return {
+    tickets: tickets.map((entry) => ({
+      ...entry,
+      device: tokenByAddress.get(entry.message.to) || null,
+    })),
+    deduped,
+  };
 };
 
 /**
@@ -262,8 +275,10 @@ const fanOutPush = async ({ deps, postId, post }) => {
 
   const allTickets = [];
   const dispatched = { favorite_hit: 0, price_drop: 0, discount_threshold: 0 };
+  const seenTokens = new Set();
+  let dedupedTokens = 0;
   for (const [uid, type] of uidType) {
-    const tickets = await dispatchToUser({
+    const { tickets, deduped } = await dispatchToUser({
       firestore,
       expo,
       uid,
@@ -271,14 +286,19 @@ const fanOutPush = async ({ deps, postId, post }) => {
       post: { ...post, discount },
       type,
       payloadExcludeKeys: config.push.payloadExcludeKeys,
+      seenTokens,
       log,
     });
     allTickets.push(...tickets);
-    dispatched[type] += 1;
+    dedupedTokens += deduped;
+    if (tickets.length > 0) dispatched[type] += 1;
   }
 
   if (uidType.size > 0) {
-    log?.info({ postId, dispatched, tickets: allTickets.length }, "[push] fan-out dispatched");
+    log?.info(
+      { postId, dispatched, tickets: allTickets.length, dedupedTokens },
+      "[push] fan-out dispatched",
+    );
   }
 
   if (allTickets.length > 0) {
