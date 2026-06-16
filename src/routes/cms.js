@@ -237,7 +237,7 @@ const SLIDES = [
 //   body  → corpo testo
 //   color → colore hex (es. accent/sfondo, gestito lato client)
 const ANNOUNCEMENT = {
-  active: false,
+  active: true,
   title: "Comunicazione speciale",
   body: "Questo è il testo della comunicazione mostrata in app.",
   color: "#7C3AED",
