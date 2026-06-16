@@ -244,8 +244,8 @@ const ANNOUNCEMENT = {
   title: "Comunicazione speciale",
   body: "Questo è il testo della comunicazione mostrata in app.",
   color: "#7C3AED",
-  type: "screen",
-  target: "/live",
+  type: "web",
+  target: "https://offerte.club",
 };
 
 module.exports = async function (fastify) {
