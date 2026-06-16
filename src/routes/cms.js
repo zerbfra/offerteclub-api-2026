@@ -230,6 +230,19 @@ const SLIDES = [
   },
 ];
 
+// ─── Comunicazione speciale (messaggio in-app) ──────────────────────────────
+// Messaggio testuale da mostrare in app (es. avviso/comunicazione speciale).
+// `active`: true = servito, false = nessuna comunicazione (data:null).
+//   title → titolo del messaggio
+//   body  → corpo testo
+//   color → colore hex (es. accent/sfondo, gestito lato client)
+const ANNOUNCEMENT = {
+  active: false,
+  title: "Comunicazione speciale",
+  body: "Questo è il testo della comunicazione mostrata in app.",
+  color: "#7C3AED",
+};
+
 module.exports = async function (fastify) {
   // GET /api/cms/top-brands — Lista dei brand in evidenza per la home/discovery.
   fastify.get("/cms/top-brands", async () => {
@@ -254,6 +267,16 @@ module.exports = async function (fastify) {
   // (route Expo Router, in `target`).
   fastify.get("/cms/slides", async () => {
     return { status: 200, data: SLIDES };
+  });
+
+  // GET /api/cms/announcement — Comunicazione speciale (messaggio testuale) o
+  // nessuna. Per attivarla: `active: true` su ANNOUNCEMENT. `active:false`/
+  // `data:null` quando non c'è nessuna comunicazione.
+  fastify.get("/cms/announcement", async () => {
+    if (!ANNOUNCEMENT.active) {
+      return { status: 200, active: false, data: null };
+    }
+    return { status: 200, active: true, data: ANNOUNCEMENT };
   });
 
   // GET /api/cms/home-event — Evento home attivo (banner branded) o nessuno.

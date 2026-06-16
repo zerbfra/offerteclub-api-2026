@@ -470,6 +470,19 @@
             },
             "description": "Slide/banner immagine per la home. Ogni slide ha `image` (url da mostrare) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = route Expo Router, es. \"/live\"). Array ordinato."
           }
+        },
+        {
+          "name": "Announcement",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/announcement",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "announcement"]
+            },
+            "description": "Comunicazione speciale (messaggio testuale) o nessuna. `data` ha `title`, `body` e `color` (hex). `active:false`/`data:null` quando non c'è nessuna comunicazione."
+          }
         }
       ]
     }
