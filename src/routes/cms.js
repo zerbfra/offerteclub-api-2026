@@ -233,14 +233,19 @@ const SLIDES = [
 // ─── Comunicazione speciale (messaggio in-app) ──────────────────────────────
 // Messaggio testuale da mostrare in app (es. avviso/comunicazione speciale).
 // `active`: true = servito, false = nessuna comunicazione (data:null).
-//   title → titolo del messaggio
-//   body  → corpo testo
-//   color → colore hex (es. accent/sfondo, gestito lato client)
+//   title  → titolo del messaggio
+//   body   → corpo testo
+//   color  → colore hex (es. accent/sfondo, gestito lato client)
+//   type   → destinazione al tap: "web" (URL http) o "screen" (route Expo
+//            Router). Vedi l'elenco route valide nel blocco SLIDES sopra.
+//   target → URL http (type "web") o route Expo Router (type "screen").
 const ANNOUNCEMENT = {
   active: true,
   title: "Comunicazione speciale",
   body: "Questo è il testo della comunicazione mostrata in app.",
   color: "#7C3AED",
+  type: "screen",
+  target: "/live",
 };
 
 module.exports = async function (fastify) {
