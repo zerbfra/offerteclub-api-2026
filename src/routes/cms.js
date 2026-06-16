@@ -193,6 +193,29 @@ const HOME_EVENTS = {
   },
 };
 
+// ─── Slides (banner immagine cliccabili) ────────────────────────────────────
+// Ogni slide ha una `image` (url da mostrare) e una destinazione al tap:
+//   type: "web"    → `target` è un URL http da aprire (browser/in-app webview).
+//   type: "screen" → `target` è il nome di una schermata in app (es. "LiveModal").
+// L'ordine dell'array è significativo (ordine di visualizzazione nel carosello).
+const SLIDES = [
+  {
+    image: "https://assets.offerte.club/BANNER/LIVE_ALI_SUMMER26/1.jpg",
+    type: "screen",
+    target: "LiveModal",
+  },
+  {
+    image: "https://assets.offerte.club/BANNER/LIVE_ALI_SUMMER26/2.jpg",
+    type: "screen",
+    target: "LiveModal",
+  },
+  {
+    image: "https://assets.offerte.club/BANNER/LIVE_ALI_SUMMER26/3.jpg",
+    type: "web",
+    target: "https://offerte.club",
+  },
+];
+
 module.exports = async function (fastify) {
   // GET /api/cms/top-brands — Lista dei brand in evidenza per la home/discovery.
   fastify.get("/cms/top-brands", async () => {
@@ -210,6 +233,13 @@ module.exports = async function (fastify) {
   // ancorare in testa lato client.
   fastify.get("/cms/home-chips", async () => {
     return { status: 200, data: HOME_CHIPS };
+  });
+
+  // GET /api/cms/slides — Slide/banner immagine per la home. Ogni slide ha una
+  // `image` e una destinazione al tap: type "web" (URL http) o "screen"
+  // (schermata in app, in `target`).
+  fastify.get("/cms/slides", async () => {
+    return { status: 200, data: SLIDES };
   });
 
   // GET /api/cms/home-event — Evento home attivo (banner branded) o nessuno.

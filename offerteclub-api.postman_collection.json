@@ -457,6 +457,19 @@
             },
             "description": "Evento home attivo (banner branded) o nessuno. `active:false`/`data:null` quando nessun evento è in corso."
           }
+        },
+        {
+          "name": "Slides",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/slides",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "slides"]
+            },
+            "description": "Slide/banner immagine per la home. Ogni slide ha `image` (url da mostrare) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = nome schermata in app, es. \"LiveModal\"). Array ordinato."
+          }
         }
       ]
     }
