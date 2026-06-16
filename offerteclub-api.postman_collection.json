@@ -468,7 +468,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "cms", "slides"]
             },
-            "description": "Slide/banner immagine per la home. Ogni slide ha `image` (url da mostrare) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = nome schermata in app, es. \"LiveModal\"). Array ordinato."
+            "description": "Slide/banner immagine per la home. Ogni slide ha `image` (url da mostrare) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = route Expo Router, es. \"/live\"). Array ordinato."
           }
         }
       ]

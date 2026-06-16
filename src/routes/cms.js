@@ -196,18 +196,32 @@ const HOME_EVENTS = {
 // ─── Slides (banner immagine cliccabili) ────────────────────────────────────
 // Ogni slide ha una `image` (url da mostrare) e una destinazione al tap:
 //   type: "web"    → `target` è un URL http da aprire (browser/in-app webview).
-//   type: "screen" → `target` è il nome di una schermata in app (es. "LiveModal").
+//   type: "screen" → `target` è una route Expo Router da aprire in app.
 // L'ordine dell'array è significativo (ordine di visualizzazione nel carosello).
+//
+// Route screen valide (Expo Router):
+//   /(tabs)            → Home
+//   /(tabs)/reels      → Scopri (reel)
+//   /(tabs)/favorites  → Preferiti
+//   /(tabs)/profile    → Profilo
+//   /live              → Diretta live
+//   /notifications     → Notifiche
+//   /search            → Ricerca
+//   /chat              → Chat AI
+//   /offer-preferences → Preferenze offerte
+//   /edit-profile      → Modifica profilo
+//   /onboarding        → Tutorial
+//   /login             → Login
 const SLIDES = [
   {
     image: "https://assets.offerte.club/BANNER/LIVE_ALI_SUMMER26/1.jpg",
     type: "screen",
-    target: "LiveModal",
+    target: "/live",
   },
   {
     image: "https://assets.offerte.club/BANNER/LIVE_ALI_SUMMER26/2.jpg",
     type: "screen",
-    target: "LiveModal",
+    target: "/live",
   },
   {
     image: "https://assets.offerte.club/BANNER/LIVE_ALI_SUMMER26/3.jpg",
@@ -237,7 +251,7 @@ module.exports = async function (fastify) {
 
   // GET /api/cms/slides — Slide/banner immagine per la home. Ogni slide ha una
   // `image` e una destinazione al tap: type "web" (URL http) o "screen"
-  // (schermata in app, in `target`).
+  // (route Expo Router, in `target`).
   fastify.get("/cms/slides", async () => {
     return { status: 200, data: SLIDES };
   });
