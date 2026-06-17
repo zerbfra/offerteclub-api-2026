@@ -68,6 +68,12 @@ const config = {
     url: process.env.DO_FUNCTIONS_URL,
     token: process.env.DO_FUNCTIONS_TOKEN,
   },
+  datocms: {
+    apiToken: process.env.DATOCMS_API_TOKEN,
+    endpoint: process.env.DATOCMS_ENDPOINT || "https://graphql.datocms.com/",
+    timeout: toInt(process.env.DATOCMS_TIMEOUT_MS, 10_000),
+    cacheTtlSeconds: toInt(process.env.DATOCMS_CACHE_TTL_SECONDS, 300),
+  },
   push: {
     adminToken: process.env.PUSH_ADMIN_TOKEN,
     expoAccessToken: process.env.EXPO_ACCESS_TOKEN || undefined,
