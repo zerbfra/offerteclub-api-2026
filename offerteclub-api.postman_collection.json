@@ -416,7 +416,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "cms", "top-brands"]
             },
-            "description": "Lista dei brand in evidenza per la home/discovery. Per ora hardcoded lato API, in futuro arriverà da un CMS esterno."
+            "description": "Lista dei brand in evidenza per la home/discovery, gestita su DatoCMS (modello `top_brand`, ordinati per creazione). `data` è un array di stringhe. Cache Redis breve; se DatoCMS è irraggiungibile risponde con `data: []`."
           }
         },
         {
@@ -429,7 +429,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "cms", "chips"]
             },
-            "description": "Chip rapidi per home/chat. Ogni elemento ha `type`: \"ai\" (prompt per la chat AI) o \"search\" (keyword per la ricerca prodotti)."
+            "description": "Chip rapidi per home/chat, gestiti su DatoCMS (modello `chip`, ordinati per `position`). Ogni elemento ha `type`: \"ai\" (prompt per la chat AI) o \"search\" (keyword per la ricerca prodotti), più `label` e `query`. Cache Redis breve; se DatoCMS è irraggiungibile risponde con `data: []`."
           }
         },
         {
@@ -442,7 +442,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "cms", "home-chips"]
             },
-            "description": "Chip della home (categorie/scorciatoie). Array ordinato; `pinned: true` indica i chip da ancorare in testa."
+            "description": "Chip della home (categorie/scorciatoie), gestiti su DatoCMS (modello `chip` con type \"home\", ordinati per `position`). Ogni elemento ha `key`, `label`, `pinned` (true = da ancorare in testa) e `params` (JSON). Cache Redis breve; se DatoCMS è irraggiungibile risponde con `data: []`."
           }
         },
         {
@@ -455,7 +455,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "cms", "home-event"]
             },
-            "description": "Evento home attivo (banner branded) o nessuno. `active:false`/`data:null` quando nessun evento è in corso."
+            "description": "Evento home attivo (banner branded) o nessuno, gestito su DatoCMS (modello `event`). `data` ha `key`, `titleLines` (array), `subtitle`, `badgeLabel`, colori (`bg`/`accent`/`badgeColor`/`titleAccent` hex), `glowTop`/`glowBottom` (rgba) e `startsAt`/`endsAt`. Più eventi attivi → vince il primo per `position`. `active:false`/`data:null` quando nessuno è attivo (anche se DatoCMS è irraggiungibile). Cache Redis breve."
           }
         },
         {
@@ -468,7 +468,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "cms", "slides"]
             },
-            "description": "Slide/banner immagine per la home. Ogni slide ha `image` (url da mostrare) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = route Expo Router, es. \"/live\"). Array ordinato."
+            "description": "Slide/banner immagine per la home, gestite su DatoCMS (modello `slide`, ordinate per `order`). Ogni slide ha `image` (url da mostrare) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = route Expo Router, es. \"/live\"). Cache Redis breve; se DatoCMS è irraggiungibile risponde con `data: []`."
           }
         },
         {
@@ -481,7 +481,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "cms", "announcement"]
             },
-            "description": "Comunicazione speciale (messaggio testuale) o nessuna. `data` ha `title`, `body`, `color` (hex) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = route Expo Router, es. \"/live\"). `active:false`/`data:null` quando non c'è nessuna comunicazione."
+            "description": "Comunicazione speciale (messaggio testuale), gestita su DatoCMS (modello singleton `announcement`). `data` ha `title`, `body`, `color` (hex) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = route Expo Router, es. \"/live\"). `active:false`/`data:null` quando non c'è nessuna comunicazione (anche se DatoCMS è irraggiungibile). Cache Redis breve."
           }
         }
       ]
