@@ -155,12 +155,13 @@ async function getHomeChips() {
 }
 
 // ─── Announcement ─────────────────────────────────────────────────────────────
-// Modello singleton DatoCMS `announcement`: active, anntype, title, body,
-// target, color (ColorField → si serve l'hex come stringa).
+// Modello singleton DatoCMS `announcement`: anntype, title, body, target,
+// color (ColorField → si serve l'hex come stringa). L'on/off è gestito con
+// publish/unpublish su DatoCMS: la Content Delivery API restituisce il record
+// solo se pubblicato, quindi presenza del record = comunicazione attiva.
 const ANNOUNCEMENT_QUERY = `
   query Announcement {
     announcement {
-      active
       anntype
       title
       body
@@ -171,7 +172,6 @@ const ANNOUNCEMENT_QUERY = `
 `;
 
 const mapAnnouncement = (record) => ({
-  active: record.active,
   title: record.title || null,
   body: record.body || null,
   color: record.color?.hex || null,
@@ -179,7 +179,7 @@ const mapAnnouncement = (record) => ({
   target: record.target || null,
 });
 
-/** Comunicazione speciale mappata, o null se il record non esiste. */
+/** Comunicazione speciale mappata se pubblicata, o null se assente/non pubblicata. */
 async function getAnnouncement() {
   const data = await datoQuery(ANNOUNCEMENT_QUERY);
   return data.announcement ? mapAnnouncement(data.announcement) : null;

@@ -32,14 +32,14 @@ const {
   getHomeEvent,
 } = require("../services/datocms");
 
-// Response "lista": `data` = array (fallback: array vuoto).
-const asList = (data) => ({ status: 200, data });
+// Response generica: mette il valore sotto `data` (array per le liste, oggetto o
+// null per i contenuti singoli come l'announcement). Fallback dedicati per shape.
+const asData = (data) => ({ status: 200, data });
 const LIST_FALLBACK = Object.freeze({ status: 200, data: [] });
+const NULL_FALLBACK = Object.freeze({ status: 200, data: null });
 
-// Response "attivo/contenuto": serve `data` solo se presente e attivo, altrimenti
-// active:false/data:null (stesso shape anche come fallback su errore). Vale sia
-// per announcement (campo `active`) sia per home-event (getHomeEvent ritorna solo
-// l'evento attivo, o null).
+// Response "attivo/contenuto" per home-event: active:true + data se c'è un evento
+// attivo, altrimenti active:false/data:null (anche come fallback su errore).
 const INACTIVE = Object.freeze({ status: 200, active: false, data: null });
 const asActive = (value) =>
   value && value.active ? { status: 200, active: true, data: value } : INACTIVE;
@@ -84,7 +84,7 @@ module.exports = async function (fastify) {
   // per creazione). `data` = array di stringhe.
   fastify.get(
     "/cms/top-brands",
-    datoCached({ key: "cms:top-brands", fetch: getTopBrands, format: asList, fallback: LIST_FALLBACK }),
+    datoCached({ key: "cms:top-brands", fetch: getTopBrands, format: asData, fallback: LIST_FALLBACK }),
   );
 
   // GET /api/cms/chips — Chip rapidi home/chat (modello `chip`, type "ai"=prompt
@@ -92,7 +92,7 @@ module.exports = async function (fastify) {
   // type, label, query.
   fastify.get(
     "/cms/chips",
-    datoCached({ key: "cms:chips", fetch: getChips, format: asList, fallback: LIST_FALLBACK }),
+    datoCached({ key: "cms:chips", fetch: getChips, format: asData, fallback: LIST_FALLBACK }),
   );
 
   // GET /api/cms/home-chips — Chip categoria home (modello `chip`, type "home",
@@ -100,7 +100,7 @@ module.exports = async function (fastify) {
   // in testa), params (JSON).
   fastify.get(
     "/cms/home-chips",
-    datoCached({ key: "cms:home-chips", fetch: getHomeChips, format: asList, fallback: LIST_FALLBACK }),
+    datoCached({ key: "cms:home-chips", fetch: getHomeChips, format: asData, fallback: LIST_FALLBACK }),
   );
 
   // GET /api/cms/slides — Slide/banner home (modello `slide`, ordinate per
@@ -108,16 +108,17 @@ module.exports = async function (fastify) {
   // "screen"=route Expo Router, in `target`).
   fastify.get(
     "/cms/slides",
-    datoCached({ key: "cms:slides", fetch: getSlides, format: asList, fallback: LIST_FALLBACK }),
+    datoCached({ key: "cms:slides", fetch: getSlides, format: asData, fallback: LIST_FALLBACK }),
   );
 
   // GET /api/cms/announcement — Comunicazione speciale (modello singleton
-  // `announcement`). `data`: title, body, color (hex), type/target (come slides).
-  // active:false/data:null quando non attiva. Per attivarla: `active: true` su
-  // DatoCMS.
+  // `announcement`). `data`: title, body, color (hex), type/target (come slides),
+  // oppure null. On/off via publish/unpublish su DatoCMS: pubblica per mostrarla,
+  // unpublish per nasconderla (→ data:null). Nessun flag `active`: il client
+  // mostra la comunicazione se `data` è presente.
   fastify.get(
     "/cms/announcement",
-    datoCached({ key: "cms:announcement", fetch: getAnnouncement, format: asActive, fallback: INACTIVE }),
+    datoCached({ key: "cms:announcement", fetch: getAnnouncement, format: asData, fallback: NULL_FALLBACK }),
   );
 
   // GET /api/cms/home-event — Evento home / banner branded (modello `event`).
