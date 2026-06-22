@@ -237,8 +237,27 @@ async function getHomeEvent() {
   return record ? mapEvent(record) : null;
 }
 
+// ─── Configuration ──────────────────────────────────────────────────────────
+// Modello DatoCMS `configuration`: record chiavati per `identifier` (es.
+// "live_config"), con `data` (campo json, restituito già come oggetto dalla CDA).
+const CONFIGURATION_QUERY = `
+  query Configuration($identifier: String) {
+    configuration(filter: { identifier: { eq: $identifier } }) {
+      identifier
+      data
+    }
+  }
+`;
+
+/** Oggetto `data` della configuration con quell'identifier, o null se assente. */
+async function getConfiguration(identifier) {
+  const resp = await datoQuery(CONFIGURATION_QUERY, { identifier });
+  return resp.configuration ? resp.configuration.data : null;
+}
+
 module.exports = {
   datoQuery,
+  getConfiguration,
   getSlides,
   getAnnouncement,
   getTopBrands,

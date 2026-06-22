@@ -30,6 +30,7 @@ const {
   getChips,
   getHomeChips,
   getHomeEvent,
+  getConfiguration,
 } = require("../services/datocms");
 
 // Response generica: mette il valore sotto `data` (array per le liste, oggetto o
@@ -46,35 +47,38 @@ const asActive = (value) =>
 
 module.exports = async function (fastify) {
   // Wrappa un getter DatoCMS con cache Redis + fallback su errore, e ritorna un
-  // handler Fastify. `format(value)` costruisce la response (sia da cache che da
-  // fetch); `fallback` è la response servita se DatoCMS è irraggiungibile.
+  // handler Fastify. `key` e `fetch` possono essere statici o funzioni della
+  // request (per le route parametriche). `format(value)` costruisce la response
+  // (sia da cache che da fetch); `fallback` è la response servita se DatoCMS è
+  // irraggiungibile.
   const datoCached =
     ({ key, fetch, format, fallback }) =>
-    async () => {
+    async (request) => {
+      const cacheKey = typeof key === "function" ? key(request) : key;
       try {
-        const cached = await fastify.redis.get(key);
+        const cached = await fastify.redis.get(cacheKey);
         if (cached != null) return format(JSON.parse(cached));
       } catch (err) {
-        fastify.log.warn({ err }, `${key}: lettura cache Redis fallita`);
+        fastify.log.warn({ err }, `${cacheKey}: lettura cache Redis fallita`);
       }
 
       let value;
       try {
-        value = await fetch();
+        value = await fetch(request);
       } catch (err) {
-        fastify.log.error({ err }, `${key}: DatoCMS irraggiungibile`);
+        fastify.log.error({ err }, `${cacheKey}: DatoCMS irraggiungibile`);
         return fallback;
       }
 
       try {
         await fastify.redis.set(
-          key,
+          cacheKey,
           JSON.stringify(value),
           "EX",
           fastify.config.datocms.cacheTtlSeconds,
         );
       } catch (err) {
-        fastify.log.warn({ err }, `${key}: scrittura cache Redis fallita`);
+        fastify.log.warn({ err }, `${cacheKey}: scrittura cache Redis fallita`);
       }
 
       return format(value);
@@ -129,5 +133,18 @@ module.exports = async function (fastify) {
   fastify.get(
     "/cms/home-event",
     datoCached({ key: "cms:home-event", fetch: getHomeEvent, format: asActive, fallback: INACTIVE }),
+  );
+
+  // GET /api/cms/config/:identifier — Configurazione applicativa per chiave
+  // (modello `configuration`, es. identifier "live_config"). `data` = oggetto
+  // JSON della config (o null se l'identifier non esiste). Cache Redis breve.
+  fastify.get(
+    "/cms/config/:identifier",
+    datoCached({
+      key: (req) => `cms:config:${req.params.identifier}`,
+      fetch: (req) => getConfiguration(req.params.identifier),
+      format: asData,
+      fallback: NULL_FALLBACK,
+    }),
   );
 };

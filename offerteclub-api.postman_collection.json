@@ -483,6 +483,19 @@
             },
             "description": "Comunicazione speciale (messaggio testuale), gestita su DatoCMS (modello singleton `announcement`). `data` ha `title`, `body`, `color` (hex) e una destinazione al tap: `type:\"web\"` (`target` = URL http) o `type:\"screen\"` (`target` = route Expo Router, es. \"/live\"). On/off via publish/unpublish su DatoCMS: pubblica il record per mostrarla; se non pubblicata (o DatoCMS irraggiungibile) → `data:null`. Nessun flag `active`: il client mostra la comunicazione se `data` è presente. Cache Redis breve."
           }
+        },
+        {
+          "name": "Config (per identifier)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/config/live_config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "config", "live_config"]
+            },
+            "description": "Configurazione applicativa per chiave, da DatoCMS (modello `configuration`, record per `identifier`, es. \"live_config\"). `data` = oggetto JSON della config (o null se l'identifier non esiste). Cache Redis breve (chiave `cms:config:<identifier>`)."
+          }
         }
       ]
     }
