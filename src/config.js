@@ -18,6 +18,8 @@ const config = {
     url: process.env.REDIS_URL,
     ttl: {
       amazon: parseInt(process.env.REDIS_AMAZON_TTL_HOURS, 10) * 3600,
+      offersTop: toInt(process.env.REDIS_OFFERS_TOP_TTL_SECONDS, 300),
+      telegramStats: toInt(process.env.REDIS_TELEGRAM_STATS_TTL_SECONDS, 300),
     },
   },
   postgres: {
