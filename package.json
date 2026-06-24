@@ -10,6 +10,9 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
+    "devices:diag": "node scripts/diag-shared-device-tokens.js",
+    "devices:cleanup": "node scripts/cleanup-stale-device-tokens.js",
+    "devices:cleanup:apply": "node scripts/cleanup-stale-device-tokens.js --apply",
     "docker:up": "docker compose up -d --build",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f redis"
