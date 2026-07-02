@@ -31,6 +31,7 @@ const {
   getHomeChips,
   getHomeEvent,
   getConfiguration,
+  getBioLinks,
 } = require("../services/datocms");
 
 // Response generica: mette il valore sotto `data` (array per le liste, oggetto o
@@ -146,5 +147,13 @@ module.exports = async function (fastify) {
       format: asData,
       fallback: NULL_FALLBACK,
     }),
+  );
+
+  // GET /api/cms/bio-links — Linktree per la bio Instagram (modello `bio_link`,
+  // ordinati per `date` decrescente, più recenti prima). Ogni elemento: `title`,
+  // `url` e `date`. Cache Redis breve.
+  fastify.get(
+    "/cms/bio-links",
+    datoCached({ key: "cms:bio-links", fetch: getBioLinks, format: asData, fallback: LIST_FALLBACK }),
   );
 };

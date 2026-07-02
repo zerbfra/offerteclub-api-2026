@@ -237,6 +237,31 @@ async function getHomeEvent() {
   return record ? mapEvent(record) : null;
 }
 
+// ─── Bio links ──────────────────────────────────────────────────────────────
+// Modello DatoCMS `bio_link`: linktree per la bio Instagram. Ogni link ha
+// `title`, `url` e `date`. Ordinati per `date` decrescente (più recenti prima).
+const BIO_LINKS_QUERY = `
+  query BioLinks {
+    allBioLinks(orderBy: date_DESC, first: 100) {
+      title
+      url
+      date
+    }
+  }
+`;
+
+const mapBioLink = (record) => ({
+  title: record.title || null,
+  url: record.url || null,
+  date: record.date || null,
+});
+
+/** Link della bio ordinati per data (più recenti prima), forma client. */
+async function getBioLinks() {
+  const data = await datoQuery(BIO_LINKS_QUERY);
+  return (data.allBioLinks || []).map(mapBioLink).filter((l) => l.title && l.url);
+}
+
 // ─── Configuration ──────────────────────────────────────────────────────────
 // Modello DatoCMS `configuration`: record chiavati per `identifier` (es.
 // "live_config"), con `data` (campo json, restituito già come oggetto dalla CDA).
@@ -258,6 +283,7 @@ async function getConfiguration(identifier) {
 module.exports = {
   datoQuery,
   getConfiguration,
+  getBioLinks,
   getSlides,
   getAnnouncement,
   getTopBrands,

@@ -496,6 +496,19 @@
             },
             "description": "Configurazione applicativa per chiave, da DatoCMS (modello `configuration`, record per `identifier`, es. \"live_config\"). `data` = oggetto JSON della config (o null se l'identifier non esiste). Cache Redis breve (chiave `cms:config:<identifier>`)."
           }
+        },
+        {
+          "name": "Bio links",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/bio-links",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "bio-links"]
+            },
+            "description": "Linktree per la bio Instagram, da DatoCMS (modello `bio_link`, ordinati per `position`). `data` = array di `{ title, url }`. Cache Redis breve; se DatoCMS è irraggiungibile risponde con `data: []`."
+          }
         }
       ]
     }
