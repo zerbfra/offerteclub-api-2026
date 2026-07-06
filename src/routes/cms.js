@@ -34,6 +34,10 @@ const {
   getBioLinks,
 } = require("../services/datocms");
 
+// Prefisso comune di tutte le chiavi cache di questo modulo (vedi i vari
+// `key:` sotto): usato dal reset per invalidarle in blocco.
+const CACHE_KEY_PREFIX = "cms:";
+
 // Response generica: mette il valore sotto `data` (array per le liste, oggetto o
 // null per i contenuti singoli come l'announcement). Fallback dedicati per shape.
 const asData = (data) => ({ status: 200, data });
@@ -156,4 +160,39 @@ module.exports = async function (fastify) {
     "/cms/bio-links",
     datoCached({ key: "cms:bio-links", fetch: getBioLinks, format: asData, fallback: LIST_FALLBACK }),
   );
+
+  // POST /api/cms/cache/reset — Invalida tutta la cache Redis del CMS (chiavi
+  // `cms:*`): la prossima richiesta di ogni endpoint rilegge da DatoCMS. Utile
+  // dopo una modifica ai contenuti senza aspettare la scadenza del TTL.
+  // Auth: Bearer <CMS_ADMIN_TOKEN>. Se la env non è impostata la route risponde
+  // sempre 401 (mai aperta per sbaglio).
+  // Response: { status, data: { cleared, keys } }.
+  fastify.post("/cms/cache/reset", async (request, reply) => {
+    const auth = request.headers["authorization"] || "";
+    const token = auth.replace(/^Bearer\s+/i, "");
+    const { adminToken } = fastify.config.cms;
+    if (!adminToken || token !== adminToken) {
+      return reply.code(401).send({ status: 401, message: "unauthorized", data: [] });
+    }
+
+    // SCAN incrementale (mai KEYS, che blocca Redis) + UNLINK non bloccante.
+    const keys = [];
+    let cursor = "0";
+    do {
+      const [next, batch] = await fastify.redis.scan(
+        cursor,
+        "MATCH",
+        `${CACHE_KEY_PREFIX}*`,
+        "COUNT",
+        100,
+      );
+      cursor = next;
+      keys.push(...batch);
+    } while (cursor !== "0");
+
+    if (keys.length > 0) await fastify.redis.unlink(...keys);
+
+    fastify.log.info({ cleared: keys.length, keys }, "cache CMS invalidata");
+    return { status: 200, data: { cleared: keys.length, keys } };
+  });
 };

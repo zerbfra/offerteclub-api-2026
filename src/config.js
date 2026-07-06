@@ -70,6 +70,9 @@ const config = {
     url: process.env.DO_FUNCTIONS_URL,
     token: process.env.DO_FUNCTIONS_TOKEN,
   },
+  cms: {
+    adminToken: process.env.CMS_ADMIN_TOKEN,
+  },
   datocms: {
     apiToken: process.env.DATOCMS_API_TOKEN,
     endpoint: process.env.DATOCMS_ENDPOINT || "https://graphql.datocms.com/",

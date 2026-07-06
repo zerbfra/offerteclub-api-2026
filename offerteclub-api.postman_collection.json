@@ -1,12 +1,13 @@
 {
   "info": {
     "name": "offerteclub-api-2026",
-    "description": "Collection per il gateway HTTP Fastify (Amazon, datafeeds, telegram stats, chat, offerte top, moderation, push notifications).\n\nVariabili:\n- `baseUrl`: host del backend (default http://localhost:3000)\n- `pushAdminToken`: bearer per /api/push/test\n- `sessionId`: id sessione per /api/chat\n- `channel`: nome canale telegram (es. offertetech)\n- `uid`: uid Firebase per push test\n\nIMPORTANT: aggiornare quando si aggiungono/modificano route in src/routes/.",
+    "description": "Collection per il gateway HTTP Fastify (Amazon, datafeeds, telegram stats, chat, offerte top, moderation, push notifications).\n\nVariabili:\n- `baseUrl`: host del backend (default http://localhost:3000)\n- `pushAdminToken`: bearer per /api/push/test\n- `cmsAdminToken`: bearer per /api/cms/cache/reset\n- `sessionId`: id sessione per /api/chat\n- `channel`: nome canale telegram (es. offertetech)\n- `uid`: uid Firebase per push test\n\nIMPORTANT: aggiornare quando si aggiungono/modificano route in src/routes/.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
     { "key": "pushAdminToken", "value": "", "type": "string" },
+    { "key": "cmsAdminToken", "value": "", "type": "string" },
     { "key": "sessionId", "value": "test-session-1", "type": "string" },
     { "key": "channel", "value": "offertetech", "type": "string" },
     { "key": "uid", "value": "", "type": "string" }
@@ -508,6 +509,21 @@
               "path": ["api", "cms", "bio-links"]
             },
             "description": "Linktree per la bio Instagram, da DatoCMS (modello `bio_link`, ordinati per `position`). `data` = array di `{ title, url }`. Cache Redis breve; se DatoCMS è irraggiungibile risponde con `data: []`."
+          }
+        },
+        {
+          "name": "Cache reset",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{cmsAdminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cms/cache/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cms", "cache", "reset"]
+            },
+            "description": "Invalida tutta la cache Redis del CMS (chiavi `cms:*`): la prossima richiesta di ogni endpoint CMS rilegge da DatoCMS. Utile dopo una modifica ai contenuti senza aspettare il TTL. Auth: Bearer CMS_ADMIN_TOKEN. Response: `data = { cleared, keys }`."
           }
         }
       ]
