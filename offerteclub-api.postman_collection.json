@@ -401,6 +401,59 @@
             },
             "description": "Notifica senza azioni specifiche: solo title + body. Nessun campo extra obbligatorio."
           }
+        },
+        {
+          "name": "broadcast (dry run)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Black Friday è iniziato!\",\n  \"body\": \"Le migliori offerte ti aspettano\",\n  \"dryRun\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "broadcast"]
+            },
+            "description": "Conta destinatari (notifPrefs.pushEnabled == true) e device senza inviare nulla. Ritorna anche il messaggio Expo che verrebbe inviato."
+          }
+        },
+        {
+          "name": "broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"black-friday-2026\",\n  \"type\": \"generic\",\n  \"title\": \"Black Friday è iniziato!\",\n  \"body\": \"Le migliori offerte ti aspettano\",\n  \"expo\": {\n    \"ttl\": 21600,\n    \"collapseId\": \"black-friday-2026\",\n    \"subtitle\": \"Solo oggi\"\n  },\n  \"inbox\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/push/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "broadcast"]
+            },
+            "description": "Push a tutti gli utenti con pushEnabled (o solo `uids`). Risponde 202 con l'id; l'invio continua in background. `id` è idempotente (409 se già usato). `data` (oggetto) viene unito al data Expo. `expo` accetta: ttl, expiration, priority, richContent, categoryId, collapseId, subtitle, sound, badge, interruptionLevel, threadId, targetContentId, relevanceScore, filterCriteria, mutableContent, contentAvailable, channelId, icon, tag."
+          }
+        },
+        {
+          "name": "broadcast status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{pushAdminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/push/broadcast/black-friday-2026",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "push", "broadcast", "black-friday-2026"]
+            },
+            "description": "Stato del broadcast: queued | running | done | failed, con conteggi di destinatari, device, ticket ok/errore e codici errore Expo."
+          }
         }
       ]
     },

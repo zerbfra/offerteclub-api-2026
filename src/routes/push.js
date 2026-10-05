@@ -2,6 +2,14 @@ const admin = require("firebase-admin");
 const config = require("../config");
 const { enqueueReceipts } = require("../services/push/receipts");
 const { notificationExpiresAt } = require("../services/push/ttl");
+const {
+  buildBroadcastMessage,
+  resolveRecipients,
+  collectTokens,
+  reserveBroadcast,
+  runBroadcast,
+  getBroadcastStatus,
+} = require("../services/push/broadcast");
 
 const ALLOWED_TYPES = new Set([
   "price_drop",
@@ -22,6 +30,9 @@ const requireAdmin = (request, reply) => {
   }
   return true;
 };
+
+const MAX_UIDS = 10000;
+const BROADCAST_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
 
 module.exports = async function (fastify) {
   // POST /api/push/test — invia una push fittizia a tutti i device di un uid.
@@ -114,5 +125,127 @@ module.exports = async function (fastify) {
       status: 200,
       data: { devices: tokens.length, tickets: tickets.map((t) => t.ticket) },
     };
+  });
+
+  // POST /api/push/broadcast — invia una push a tutti gli utenti con
+  // notifPrefs.pushEnabled == true (o solo agli `uids` indicati, sempre
+  // rispettando l'opt-out). Auth: Bearer <PUSH_ADMIN_TOKEN>
+  // Body:
+  //   title, body                   obbligatori
+  //   type?                         come /push/test (default: generic)
+  //   dealId?, image?, webUrl?, webTitle?   finiscono in `data` come per /push/test
+  //   data?                         oggetto extra unito a `data` (i campi sopra vincono)
+  //   expo?                         campi del messaggio Expo: ttl, expiration, priority,
+  //                                 richContent, categoryId, collapseId, subtitle, sound,
+  //                                 badge, interruptionLevel, threadId, targetContentId,
+  //                                 relevanceScore, filterCriteria, mutableContent,
+  //                                 contentAvailable, channelId, icon, tag
+  //   uids?                         limita il broadcast a questi uid (max 10000)
+  //   inbox?                        default true: scrive in users/{uid}/notifications
+  //   id?                           id idempotente ([A-Za-z0-9_-], max 64): un secondo
+  //                                 invio con lo stesso id ritorna 409
+  //   dryRun?                       true → conta destinatari/device senza inviare
+  // Risposta: 202 { id } — l'invio prosegue in background, stato su
+  // GET /api/push/broadcast/:id
+  fastify.post("/push/broadcast", async (request, reply) => {
+    if (!requireAdmin(request, reply)) return;
+
+    const reqBody = request.body || {};
+    const { title, body, dealId, image, webUrl, webTitle, data, expo, uids, id } = reqBody;
+    const type = reqBody.type || "generic";
+    const inbox = reqBody.inbox !== false;
+    const bad = (message) => reply.code(400).send({ status: 400, message, data: [] });
+
+    if (!ALLOWED_TYPES.has(type)) {
+      return bad(`invalid type, allowed: ${[...ALLOWED_TYPES].join(", ")}`);
+    }
+    if (type === "web_landing" && !webUrl) return bad("webUrl required for type=web_landing");
+    if (data !== undefined && (data === null || typeof data !== "object" || Array.isArray(data))) {
+      return bad("data must be an object");
+    }
+    if (
+      uids !== undefined &&
+      (!Array.isArray(uids) ||
+        uids.length === 0 ||
+        uids.length > MAX_UIDS ||
+        !uids.every((u) => typeof u === "string" && u.length > 0))
+    ) {
+      return bad(`uids must be a non-empty array of strings (max ${MAX_UIDS})`);
+    }
+    if (id !== undefined && (typeof id !== "string" || !BROADCAST_ID_RE.test(id))) {
+      return bad("id must match [A-Za-z0-9_-]{1,64}");
+    }
+
+    const dataPayload = { ...data, type };
+    if (dealId) dataPayload.dealId = dealId;
+    if (image) dataPayload.image = image;
+    if (webUrl) dataPayload.webUrl = webUrl;
+    if (webTitle) dataPayload.webTitle = webTitle;
+
+    const { message, error } = buildBroadcastMessage({ title, body, data: dataPayload, expo });
+    if (error) return bad(error);
+
+    if (reqBody.dryRun === true) {
+      const recipients = await resolveRecipients(fastify.firestore, uids);
+      const { tokensByUid, devices } = await collectTokens(fastify.firestore, recipients);
+      return {
+        status: 200,
+        data: {
+          dryRun: true,
+          recipients: recipients.length,
+          users: tokensByUid.size,
+          devices,
+          message,
+        },
+      };
+    }
+
+    const status = await reserveBroadcast(fastify.redis, config.push.idempotencyTtlSeconds, {
+      id,
+      summary: { type, title, body, uids: uids ? uids.length : "all", inbox },
+    });
+    if (!status) {
+      return reply.code(409).send({
+        status: 409,
+        message: "broadcast id already used",
+        data: await getBroadcastStatus(fastify.redis, id),
+      });
+    }
+
+    const mirror = inbox
+      ? {
+          type,
+          title,
+          body,
+          dealId: dealId || "",
+          image: image || null,
+          webUrl: webUrl || null,
+          webTitle: webTitle || null,
+        }
+      : null;
+
+    const deps = {
+      firestore: fastify.firestore,
+      redis: fastify.redis,
+      expo: fastify.push.expo,
+      config,
+      log: fastify.log,
+    };
+    // Non awaited: con molti utenti l'invio dura più di una normale request HTTP.
+    runBroadcast(deps, { status, uids, message, mirror }).catch((err) =>
+      fastify.log.error({ err, id: status.id }, "[push] broadcast crashed"),
+    );
+
+    return reply.code(202).send({ status: 202, data: { id: status.id } });
+  });
+
+  // GET /api/push/broadcast/:id — stato di un broadcast (queued | running | done | failed).
+  fastify.get("/push/broadcast/:id", async (request, reply) => {
+    if (!requireAdmin(request, reply)) return;
+    const status = await getBroadcastStatus(fastify.redis, request.params.id);
+    if (!status) {
+      return reply.code(404).send({ status: 404, message: "broadcast not found", data: [] });
+    }
+    return { status: 200, data: status };
   });
 };
