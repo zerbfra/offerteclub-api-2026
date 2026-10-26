@@ -27,7 +27,7 @@
     "prettier": "^3.8.1"
   },
   "dependencies": {
-    "creatorsapi-nodejs-sdk-amazon": "git+git@github.com:zerbfra/creatorsapi-nodejs-sdk-amazon.git",
+    "creatorsapi-nodejs-sdk-amazon": "git+https://github.com/zerbfra/creatorsapi-nodejs-sdk-amazon.git",
     "@fastify/cors": "^10.0.1",
     "@fastify/rate-limit": "^10.1.1",
     "dotenv": "^16.4.5",
