@@ -1,7 +1,7 @@
 const {
   GetItemsRequestContent,
   SearchItemsRequestContent,
-} = require("../../vendor/creatorsapi-nodejs-sdk/dist/index");
+} = require("creatorsapi-nodejs-sdk-amazon");
 
 const RESOURCES = [
   "images.primary.medium",
@@ -58,7 +58,7 @@ async function searchItems(api, options) {
   if (brand) req.brand = brand;
   if (deliveryFlags?.length) req.deliveryFlags = deliveryFlags;
 
-  return api.searchItems(marketplace, { searchItemsRequestContent: req });
+  return api.searchItems(marketplace, req);
 }
 
 module.exports = { getItems, searchItems };

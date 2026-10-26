@@ -1,5 +1,5 @@
 const fp = require("fastify-plugin");
-const { ApiClient, DefaultApi } = require("../../vendor/creatorsapi-nodejs-sdk/dist/index");
+const { ApiClient, DefaultApi } = require("creatorsapi-nodejs-sdk-amazon");
 const config = require("../config");
 
 /** Registra il client API Amazon (Creators API) su Fastify. */

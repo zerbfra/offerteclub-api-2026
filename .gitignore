@@ -3,8 +3,6 @@ tmp/
 .env
 firebase-credentials.json
 dist/
-vendor/creatorsapi-nodejs-sdk/node_modules
-vendor/creatorsapi-nodejs-sdk/dist
 *.log
 .DS_Store
 
