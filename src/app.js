@@ -28,8 +28,8 @@ async function build(opts = {}) {
   await app.register(require("./plugins/openai"));
   await app.register(require("./plugins/meilisearch"));
   await app.register(require("./plugins/chat"));
-  await app.register(require("./plugins/socketio"));
   await app.register(require("./plugins/firebase"));
+  await app.register(require("./plugins/socketio"));
   await app.register(require("./plugins/push"));
 
   // REGISTER ROUTES

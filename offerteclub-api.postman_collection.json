@@ -231,6 +231,23 @@
             },
             "description": "Top offerte aggregate dai click Yourls + dati Telegram da Firestore."
           }
+        },
+        {
+          "name": "Live offers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/live?limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "offers", "live"],
+              "query": [
+                { "key": "limit", "value": "20", "description": "1-100 (default 20)" },
+                { "key": "before", "value": "", "description": "epoch ms: `date` dell'ultima offerta ricevuta (paginazione)", "disabled": true }
+              ]
+            },
+            "description": "Ultime offerte del canale @offertepuntolive da Firestore, ordinate per data desc."
+          }
         }
       ]
     },

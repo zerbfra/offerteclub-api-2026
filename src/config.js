@@ -60,7 +60,12 @@ const config = {
     shopFilter: process.env.MEILI_SHOP_FILTER || "amazon",
   },
   chat: {
-    corsOrigin: process.env.CHAT_CORS_ORIGIN || "*",
+    // Origin ammessi su Socket.IO: offerte.club, andreagaleazzi.com (+ sottodomini) e localhost su qualsiasi porta.
+    corsOrigin: [
+      /^https:\/\/([a-z0-9-]+\.)*offerte\.club$/,
+      /^https:\/\/([a-z0-9-]+\.)*andreagaleazzi\.com$/,
+      /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+    ],
   },
   firebase: {
     credentialsPath: process.env.FIREBASE_CREDENTIALS_PATH,

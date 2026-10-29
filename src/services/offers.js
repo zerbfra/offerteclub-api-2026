@@ -260,6 +260,64 @@ const getTopOffers = async (firestore, { period, category, limit } = {}, log) =>
   };
 };
 
+const LIVE_CHAT = "@offertepuntolive";
+
+const formatLiveOffer = (doc) => {
+  const post = doc.data();
+  return {
+    docId: doc.id,
+    channel: { chat: post.channel?.chat || null },
+    country: post.country || null,
+    date: post.date || null,
+    payload: post.payload || null,
+  };
+};
+
+/**
+ * Ultime offerte del canale live da Firestore, ordinate per data desc.
+ * `before` (epoch ms) è il cursore di paginazione: passa il `date` dell'ultima offerta ricevuta.
+ */
+const getLiveOffers = async (firestore, { limit, before } = {}) => {
+  let query = firestore
+    .collection("posts")
+    .where("channel.chat", "==", LIVE_CHAT)
+    .orderBy("date", "desc")
+    .limit(parseLimit(limit));
+  if (before != null && before !== "") {
+    const cursor = Number(before);
+    if (!Number.isFinite(cursor)) {
+      const err = new Error("Invalid before, expected epoch ms");
+      err.statusCode = 400;
+      throw err;
+    }
+    query = query.where("date", "<", cursor);
+  }
+  const snapshot = await query.get();
+  const offers = snapshot.docs.map(formatLiveOffer);
+  return { offers, count: offers.length };
+};
+
+/**
+ * onSnapshot sui nuovi post del canale live (date >= avvio, come il push listener).
+ * Chiama `onOffer(offer)` per ogni documento aggiunto. Ritorna la funzione di stop.
+ */
+const startLiveOffersListener = (firestore, onOffer, log) =>
+  firestore
+    .collection("posts")
+    .where("channel.chat", "==", LIVE_CHAT)
+    .where("date", ">=", Date.now())
+    .orderBy("date", "desc") // riusa l'indice composito chat+date desc di getLiveOffers
+    .onSnapshot(
+      (snap) => {
+        snap.docChanges().forEach((change) => {
+          if (change.type === "added") onOffer(formatLiveOffer(change.doc));
+        });
+      },
+      (err) => log?.error({ err }, "[offers:live] snapshot error"),
+    );
+
 module.exports = {
   getTopOffers,
+  getLiveOffers,
+  startLiveOffersListener,
 };

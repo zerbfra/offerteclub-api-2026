@@ -1,4 +1,4 @@
-const { getTopOffers } = require("../services/offers");
+const { getTopOffers, getLiveOffers } = require("../services/offers");
 const { withCache, cacheKey } = require("../lib/cache");
 
 module.exports = async function (fastify) {
@@ -13,6 +13,14 @@ module.exports = async function (fastify) {
       ttlSeconds: fastify.config.redis.ttl.offersTop,
       fetch: () => getTopOffers(fastify.firestore, { period, category, limit }, fastify.log),
     });
+    return { status: 200, data };
+  });
+
+  // GET /api/offers/live — Ultime offerte del canale @offertepuntolive da Firestore.
+  // Query: limit (default 20, max 100), before (epoch ms, cursore: `date` dell'ultima offerta ricevuta).
+  fastify.get("/offers/live", async (request) => {
+    const { limit, before } = request.query;
+    const data = await getLiveOffers(fastify.firestore, { limit, before });
     return { status: 200, data };
   });
 };

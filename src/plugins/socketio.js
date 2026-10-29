@@ -5,6 +5,9 @@ const { runSearchPipeline } = require("../services/chat/pipeline");
 const { handlePipelineResult } = require("../services/chat/handler");
 const { getSession, resetSession } = require("../services/chat/session");
 const { serializeProducts } = require("../services/chat/serializer");
+const { startLiveOffersListener } = require("../services/offers");
+
+const LIVE_ROOM = "offers:live";
 
 const setupHandlers = (io, fastify) => {
   const chat = fastify.chat;
@@ -94,6 +97,10 @@ const setupHandlers = (io, fastify) => {
       }
     });
 
+    // Offerte live: il client entra nella room e riceve `offers:live:new` per ogni nuovo post.
+    socket.on("offers:live:join", () => socket.join(LIVE_ROOM));
+    socket.on("offers:live:leave", () => socket.leave(LIVE_ROOM));
+
     socket.on("disconnect", () => {
       fastify.log.info(`[socket] disconnected: ${socket.id}`);
     });
@@ -102,10 +109,12 @@ const setupHandlers = (io, fastify) => {
 
 /**
  * Attacca Socket.IO al server HTTP di Fastify.
- * Dipende da fastify.chat (plugin chat) → openai → meili → redis.
+ * Dipende da fastify.chat (plugin chat) → openai → meili → redis, e da firebase
+ * per il listener delle offerte live.
  */
 async function socketioPlugin(fastify) {
   let io;
+  let unsubscribeLive = null;
 
   fastify.addHook("onReady", async () => {
     io = new Server(fastify.server, {
@@ -116,11 +125,17 @@ async function socketioPlugin(fastify) {
     });
     fastify.decorate("io", io);
     setupHandlers(io, fastify);
+    unsubscribeLive = startLiveOffersListener(
+      fastify.firestore,
+      (offer) => io.to(LIVE_ROOM).emit("offers:live:new", offer),
+      fastify.log,
+    );
   });
 
   fastify.addHook("onClose", async () => {
+    if (unsubscribeLive) unsubscribeLive();
     if (io) await new Promise((resolve) => io.close(resolve));
   });
 }
 
-module.exports = fp(socketioPlugin, { name: "socketio", dependencies: ["chat", "meilisearch"] });
+module.exports = fp(socketioPlugin, { name: "socketio", dependencies: ["chat", "meilisearch", "firebase"] });
