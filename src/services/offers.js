@@ -276,13 +276,15 @@ const formatLiveOffer = (doc) => {
 /**
  * Ultime offerte del canale live da Firestore, ordinate per data desc.
  * `before` (epoch ms) è il cursore di paginazione: passa il `date` dell'ultima offerta ricevuta.
+ * `hours` limita alle ultime N ore; in quel caso `limit` di default è MAX_LIMIT.
  */
-const getLiveOffers = async (firestore, { limit, before } = {}) => {
+const getLiveOffers = async (firestore, { limit, before, hours } = {}) => {
+  const hasHours = hours != null && hours !== "";
   let query = firestore
     .collection("posts")
     .where("channel.chat", "==", LIVE_CHAT)
     .orderBy("date", "desc")
-    .limit(parseLimit(limit));
+    .limit(limit == null && hasHours ? MAX_LIMIT : parseLimit(limit));
   if (before != null && before !== "") {
     const cursor = Number(before);
     if (!Number.isFinite(cursor)) {
@@ -291,6 +293,15 @@ const getLiveOffers = async (firestore, { limit, before } = {}) => {
       throw err;
     }
     query = query.where("date", "<", cursor);
+  }
+  if (hasHours) {
+    const h = Number(hours);
+    if (!Number.isFinite(h) || h <= 0) {
+      const err = new Error("Invalid hours, expected positive number");
+      err.statusCode = 400;
+      throw err;
+    }
+    query = query.where("date", ">=", Date.now() - h * 3600 * 1000);
   }
   const snapshot = await query.get();
   const offers = snapshot.docs.map(formatLiveOffer);

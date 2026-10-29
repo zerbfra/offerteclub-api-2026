@@ -17,10 +17,11 @@ module.exports = async function (fastify) {
   });
 
   // GET /api/offers/live — Ultime offerte del canale @offertepuntolive da Firestore.
-  // Query: limit (default 20, max 100), before (epoch ms, cursore: `date` dell'ultima offerta ricevuta).
+  // Query: limit (default 20, max 100), before (epoch ms, cursore: `date` dell'ultima offerta ricevuta),
+  // hours (solo le ultime N ore; senza limit esplicito restituisce fino a 100).
   fastify.get("/offers/live", async (request) => {
-    const { limit, before } = request.query;
-    const data = await getLiveOffers(fastify.firestore, { limit, before });
+    const { limit, before, hours } = request.query;
+    const data = await getLiveOffers(fastify.firestore, { limit, before, hours });
     return { status: 200, data };
   });
 };
